@@ -1,0 +1,5 @@
+{
+  "name": "effort",
+  "description": "Effort-scaled parallel implementation: research, test-first development, parallel workers in git worktrees, multi-pass review, solution synthesis, adversarial testing, and tournament-style refinement",
+  "author": { "name": "Cole" }
+}

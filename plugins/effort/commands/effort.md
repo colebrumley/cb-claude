@@ -14,8 +14,38 @@ Orchestrate multi-agent implementation in fixed phases.
 Extract from `$ARGUMENTS`:
 1. optional level `1|2|3`
 2. task description
+### Configure Run
+Use `AskUserQuestion` to let the user steer the run before committing resources. Ask all applicable questions in a **single call**.
+
+**Always ask:**
+
+1. **Model** (header: "Model"): "Which model should agents use?"
+   - "Inherited (Recommended)" — agents use the orchestrator's current model (no `model` parameter set on spawned agents)
+   - "Opus" — use `opus` for all spawned agents (highest capability, highest cost)
+   - "Sonnet" — use `sonnet` for all spawned agents (balanced capability and cost)
+   - "Haiku" — use `haiku` for all spawned agents (fastest, lowest cost)
+
+2. **Instructions** (header: "Instructions"): "Any special instructions, constraints, or focus areas for this task?"
+   - "None — use defaults (Recommended)" — no additional steering
+   - "Performance focus" — prioritize runtime performance in all implementations
+   - "Minimal changes" — make the smallest possible diff to achieve the goal
+   The user can also provide free-text via the "Other" option.
+
+**Ask only if level was NOT specified in `$ARGUMENTS`:**
+
+3. **Effort Level** (header: "Effort"): "What effort level?"
+   - "Auto-detect (Recommended)" — orchestrator classifies based on task characteristics
+   - "L1 — Try harder" — 3 workers, single round, lightweight review
+   - "L2 — High effort" — 5 workers, adversarial review, one retry
+   - "L3 — Ludicrous mode" — 7 workers, two rounds, full pipeline
+
+**Store configuration:**
+- `AGENT_MODEL`: `opus`|`sonnet`|`haiku`|`null`. Set to the chosen model string, or `null` if "Inherited".
+- `USER_INSTRUCTIONS`: free-text string or `null`. If provided, prepend as a `## User Instructions` section in every agent's task prompt (before the task description).
+- If user selected a specific effort level, use it directly (skip auto-detect). If "Auto-detect" or not asked, proceed to the Auto-Detect section below.
+
 ### Auto-Detect Effort Level
-If level absent:
+If level still unset after Configure Run:
 - **L1**: bounded/moderate ambiguity
 - **L2**: broad/cross-cutting/high ambiguity or importance
 - **L3**: architectural/high-stakes/novel/complex
@@ -36,6 +66,8 @@ Create `${EFFORT_DIR}/run.json`:
   "effort_id": "<EFFORT_ID>",
   "task": "<task description>",
   "level": 1,
+  "agent_model": "<opus|sonnet|haiku|null>",
+  "user_instructions": "<string or null>",
   "base_branch": "<CURRENT_BRANCH>",
   "base_commit": "<SHA>",
   "stash_ref": "<ref or null>",
@@ -376,5 +408,6 @@ If you haven't confirmed all of these with evidence, you are not ready to presen
 - Track scores/leaderboard; update `run.json` after each scoring phase.
 - Winning branch is the deliverable; ensure committed runnable code.
 - Perform git/worktree operations in Bash.
-- Do not set agent model parameter; agents inherit orchestrator model.
+- **Model**: If `AGENT_MODEL` is set (not null), pass it as the `model` parameter on every Task tool spawn. If null, omit the parameter so agents inherit the orchestrator's model.
+- **User Instructions**: If `USER_INSTRUCTIONS` is set, prepend a `## User Instructions\n<USER_INSTRUCTIONS>` section at the top of every agent's task prompt (before `## Task`). This applies to researchers, test writers, implementation workers, synthesizers, refiners, and reviewers.
 - Valid agent names: `effort-worker`, `effort-reviewer`, `effort-researcher`.

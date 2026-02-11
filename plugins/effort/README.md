@@ -26,7 +26,7 @@ Effort-scaled parallel implementation — throw money at a problem.
 
 1. **Research** — Researchers explore the codebase and produce structured briefings
 2. **Test generation** — Test-first: tests are written before any implementation
-3. **Parallel implementation** — Workers implement the task from different perspectives (minimalist, architect, convention, resilience, performance, security, testability) in isolated git worktrees
+3. **Parallel implementation** — Worker teammates implement the task from different perspectives (minimalist, architect, convention, resilience, performance, security, testability) in isolated git worktrees (stored in `.worktrees/`)
 4. **Evaluation** — Reviewers score each implementation on correctness, quality, codebase fit, completeness, and elegance (0-100)
 5. **Synthesis** — The best elements of top solutions are combined
 6. **Adversarial review** — Red-teamers try to break the winning solution

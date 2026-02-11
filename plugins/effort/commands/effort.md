@@ -24,8 +24,9 @@ Tie-break downward.
 ```bash
 git rev-parse --is-inside-work-tree
 REPO_ROOT="$(git rev-parse --show-toplevel)"; CURRENT_BRANCH="$(git branch --show-current)"
-EFFORT_ID="$(date +%Y%m%d-%H%M%S)-$$"; EFFORT_DIR="/tmp/effort-${EFFORT_ID}"
+EFFORT_ID="$(date +%Y%m%d-%H%M%S)-$$"; EFFORT_DIR="${REPO_ROOT}/.worktrees/effort-${EFFORT_ID}"
 mkdir -p "${EFFORT_DIR}/artifacts"
+grep -qxF '.worktrees/' "${REPO_ROOT}/.gitignore" 2>/dev/null || echo '.worktrees/' >> "${REPO_ROOT}/.gitignore"
 if [ -n "$(git status --porcelain)" ]; then git stash push -m "effort-auto-stash-${EFFORT_ID}"; STASH_REF="effort-auto-stash-${EFFORT_ID}"; fi
 ```
 ### Initialize State Tracking
@@ -47,10 +48,12 @@ Create `${EFFORT_DIR}/run.json`:
 Update `run.json` after every phase.
 ### Announce the Plan
 Report selected level, expected agent count, and stage sequence.
+### Create Team
+Use `TeamCreate` with `team_name: "effort-${EFFORT_ID}"`. All agents are spawned as **teammates** using the Task tool with the `team_name` parameter. **Never use `run_in_background`** — always spawn teammates.
 ---
 ## Git Conventions
 ### Naming
-- Effort directory: `/tmp/effort-${EFFORT_ID}`
+- Effort directory: `${REPO_ROOT}/.worktrees/effort-${EFFORT_ID}`
 - Branches: `effort/${EFFORT_ID}/<role>`
 - Worktrees: `${EFFORT_DIR}/<role>`
 ### Worker Commit Convention
@@ -95,7 +98,7 @@ Check preconditions before each phase; if unmet, run fallback.
 | Phase 14 | User has confirmed "apply" | Do not merge; preserve branches for manual review |
 ---
 ## Phase 2: Research + Test Generation
-Launch independent work in parallel with Task tool.
+Spawn teammates for all independent work.
 ### Research
 Launch `effort-researcher` by level:
 - L1: 1 general
@@ -144,7 +147,7 @@ Update `run.json` worktree map.
 | 7 | testability | "How do we make this trivial to verify?" |
 Assign L1 first 3, L2 first 5, L3 all 7.
 ### Launch Workers
-Launch all workers in parallel with:
+Spawn all workers as teammates (Task tool with `team_name: "effort-${EFFORT_ID}"`):
 ```
 Task: "You are in IMPLEMENT mode.
 ## Task
@@ -287,7 +290,8 @@ git merge "effort/${EFFORT_ID}/<winning-branch>" --no-ff -m "effort: <task summa
 ```
 If conflicts occur, do not auto-resolve; ask user to choose next action.
 ### Always clean up (even on failure):
-Run in exact order:
+First, shut down all teammates: send `shutdown_request` via `SendMessage` to each teammate, then call `TeamDelete`.
+Then run git/filesystem cleanup in exact order:
 ```bash
 # 1. Remove worktrees
 for wt in $(git worktree list --porcelain | grep "^worktree ${EFFORT_DIR}" | sed 's/^worktree //'); do git worktree remove "$wt" --force 2>/dev/null; done
@@ -366,8 +370,8 @@ If you haven't confirmed all of these with evidence, you are not ready to presen
 **All of these mean: STOP. Check the precondition table. Read the actual outputs. Follow the documented fallback.**
 ---
 ## Important Notes
-- Use Task tool for every agent launch with correct `subagent_type`.
-- Parallelize independent launches.
+- **Always use teammates, never background agents.** Spawn every agent as a teammate using the Task tool with the `team_name` parameter. Never use `run_in_background`. Never use the Task tool without `team_name` for agent launches.
+- Parallelize independent teammate spawns.
 - Pass focused context only and enforce context budgets.
 - Track scores/leaderboard; update `run.json` after each scoring phase.
 - Winning branch is the deliverable; ensure committed runnable code.

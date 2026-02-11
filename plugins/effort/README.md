@@ -22,16 +22,25 @@ Effort-scaled parallel implementation — throw money at a problem.
 | 2 | High effort | 5 | Research (2) -> Tests -> 5 workers -> Review (2) -> Synthesis -> Adversarial -> Verify |
 | 3 | Ludicrous mode | 7 | Research (3) -> Tests (3+synthesis) -> 7 workers -> Review (3 specialized) -> Refinement round -> Final synthesis -> Adversarial (2) -> Final review -> Verify |
 
+## Configuration
+
+Before spawning any agents, `/effort` prompts you to configure the run:
+
+- **Model** — choose which model agents use (inherited from orchestrator by default, or explicitly set to opus/sonnet/haiku)
+- **Instructions** — provide optional constraints or focus areas (e.g. "performance focus", "minimal changes", or free-text)
+- **Effort level** — if not specified in the command, choose the level or let it auto-detect
+
 ## How it works
 
-1. **Research** — Researchers explore the codebase and produce structured briefings
-2. **Test generation** — Test-first: tests are written before any implementation
-3. **Parallel implementation** — Worker teammates implement the task from different perspectives (minimalist, architect, convention, resilience, performance, security, testability) in isolated git worktrees (stored in `.worktrees/`)
-4. **Evaluation** — Reviewers score each implementation on correctness, quality, codebase fit, completeness, and elegance (0-100)
-5. **Synthesis** — The best elements of top solutions are combined
-6. **Adversarial review** — Red-teamers try to break the winning solution
-7. **Verification** — Tests, lint, type checking, and build verification
-8. **Refinement** (L3) — Tournament-style rounds with re-evaluation
+1. **Configure** — You're prompted to set model, instructions, and effort level
+2. **Research** — Researchers explore the codebase and produce structured briefings
+3. **Test generation** — Test-first: tests are written before any implementation
+4. **Parallel implementation** — Worker teammates implement the task from different perspectives (minimalist, architect, convention, resilience, performance, security, testability) in isolated git worktrees (stored in `.worktrees/`)
+5. **Evaluation** — Reviewers score each implementation on correctness, quality, codebase fit, completeness, and elegance (0-100)
+6. **Synthesis** — The best elements of top solutions are combined
+7. **Adversarial review** — Red-teamers try to break the winning solution
+8. **Verification** — Tests, lint, type checking, and build verification
+9. **Refinement** (L3) — Tournament-style rounds with re-evaluation
 
 ## Agents
 

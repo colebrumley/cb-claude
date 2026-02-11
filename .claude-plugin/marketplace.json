@@ -1,0 +1,17 @@
+{
+  "name": "cb-claude",
+  "owner": { "name": "Cole" },
+  "metadata": {
+    "description": "Claude Code plugins by Cole",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "effort",
+      "source": "./plugins/effort",
+      "description": "Effort-scaled parallel implementation — throw compute at a problem with tournament-style multi-agent evaluation",
+      "version": "1.0.0"
+    }
+  ]
+}

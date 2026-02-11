@@ -1,31 +1,22 @@
-# Claude Code Plugins
+# cb-claude
 
-A collection of plugins for [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+A Claude Code plugin marketplace by Cole.
+
+## Install the marketplace
+
+```
+/plugin marketplace add colebrumley/cb-claude
+```
 
 ## Plugins
 
-| Plugin | Description |
-|--------|-------------|
-| [effort](plugins/effort) | Effort-scaled parallel implementation — throw money at a problem. Spawns parallel researchers, workers, and reviewers in isolated git worktrees with tournament-style evaluation. |
+| Plugin | Description | Install |
+|--------|-------------|---------|
+| [effort](plugins/effort) | Effort-scaled parallel implementation — throw compute at a problem with tournament-style multi-agent evaluation | `/plugin install effort@cb-claude` |
 
-## Installation
+## Adding a new plugin
 
-Each plugin can be installed independently. From your project directory:
-
-```bash
-claude plugin add /path/to/claude-code-plugins/plugins/<plugin-name>
-```
-
-Or install directly from the repo:
-
-```bash
-git clone git@github.com:colebrumley/cb-claude.git
-claude plugin add ./cb-claude/plugins/effort
-```
-
-## Plugin Structure
-
-Each plugin lives in `plugins/<name>/` and follows the Claude Code plugin layout:
+1. Create `plugins/<name>/` with the standard Claude Code plugin layout:
 
 ```
 plugins/<name>/
@@ -35,6 +26,13 @@ plugins/<name>/
   commands/           # Slash commands (optional)
 ```
 
-## Contributing
+2. Add an entry to `.claude-plugin/marketplace.json`:
 
-Add a new plugin by creating a directory under `plugins/` with the structure above.
+```json
+{
+  "name": "<name>",
+  "source": "./plugins/<name>",
+  "description": "...",
+  "version": "1.0.0"
+}
+```

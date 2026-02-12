@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "defaults": {
+    "effort_level": 1,
+    "effort_model": "sonnet",
+    "opus_model": "opus",
+    "judge_model": "opus",
+    "timeout_seconds": 600
+  },
+  "tasks": [
+    {
+      "id": "add-config-validation",
+      "name": "Add config validation to plugin.json loader",
+      "prompt": "Add a validation script at plugins/validate.sh that checks all .claude-plugin/plugin.json files in the plugins/ directory. It should validate that required fields (name, description) are present and are non-empty strings. If validation fails, print a clear error message identifying which plugin and field is invalid, and exit with code 1. If all pass, print a success summary and exit 0. Make the script executable.",
+      "category": "feature",
+      "difficulty": "easy"
+    },
+    {
+      "id": "effort-dry-run",
+      "name": "Add --dry-run flag to effort command",
+      "prompt": "Add a --dry-run flag to the effort plugin command (plugins/effort/commands/effort.md). When --dry-run is present in $ARGUMENTS, the command should print the execution plan (detected level, worker count, perspective names, phase sequence) as a markdown summary and then stop without spawning any agents or creating worktrees. Parse --dry-run alongside the existing level and task description arguments.",
+      "category": "enhancement",
+      "difficulty": "medium"
+    },
+    {
+      "id": "readme-install-section",
+      "name": "Improve README installation instructions",
+      "prompt": "Rewrite the README.md to include: (1) a Prerequisites section listing required tools (Claude Code CLI, git, jq), (2) step-by-step installation instructions with verification commands the user can run to confirm it worked, (3) a Quick Start section showing a minimal /effort example with sample output, (4) a Troubleshooting section covering common issues (plugin not found, worktree conflicts, stale branches). Keep the existing content about what the plugins do.",
+      "category": "docs",
+      "difficulty": "easy"
+    },
+    {
+      "id": "worktree-cleanup-gc",
+      "name": "Add garbage collection for orphaned worktrees",
+      "prompt": "Create a new command at plugins/effort/commands/effort-gc.md that finds and cleans up orphaned effort worktrees and branches. It should: (1) list all .worktrees/effort-* directories, (2) for each, read run.json to check status — if status is not 'running' or if the directory is older than 24 hours, mark it as stale, (3) display stale entries and ask user confirmation before cleanup, (4) remove associated git worktrees with 'git worktree remove' and branches with 'git branch -D', (5) support a --force flag to skip the confirmation prompt. Add proper YAML frontmatter matching the effort command's pattern.",
+      "category": "feature",
+      "difficulty": "medium"
+    },
+    {
+      "id": "reviewer-json-output",
+      "name": "Add structured JSON scoring output to effort-reviewer",
+      "prompt": "Modify plugins/effort/agents/effort-reviewer.md so that in SCORING mode, after the existing markdown table output, the reviewer also emits a machine-readable JSON block fenced with ```json markers. The JSON should contain: {\"worker\": \"<name>\", \"perspective\": \"<perspective>\", \"scores\": {\"correctness\": N, \"quality\": N, \"codebase_fit\": N, \"completeness\": N, \"elegance\": N}, \"total\": N, \"recommendation\": \"advance|conditional|eliminate\"}. This is in addition to the existing markdown output, not replacing it. Update the Scoring Output Format section to show both formats."
+    }
+  ]
+}

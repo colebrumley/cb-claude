@@ -11,13 +11,30 @@ arguments:
 Orchestrate multi-agent implementation in fixed phases.
 ## Phase 1: Parse & Setup
 ### Parse Arguments
-Extract from `$ARGUMENTS`:
-1. optional level `1|2|3`
-2. task description
-### Configure Run
-Use `AskUserQuestion` to let the user steer the run before committing resources. Ask all applicable questions in a **single call**.
+Extract from `$ARGUMENTS` in order:
+1. **Inline flags** (optional, order-independent, consumed before task text):
+   - `--model <opus|sonnet|haiku|inherited>` — pre-sets AGENT_MODEL
+   - `--instructions "<text>"` or `--instructions none` — pre-sets USER_INSTRUCTIONS (`none` maps to `null`)
+   - `--level <1|2|3|auto>` — pre-sets effort level (alternative to bare number)
+2. **Bare level** `1|2|3` (optional, legacy syntax, same as `--level`)
+3. **Remaining text** = task description
 
-**Always ask:**
+Flag parsing rules:
+- Flags start with `--` and consume exactly one following token as their value.
+- Stop consuming flags at the first token that is neither a `--flag` nor a flag's value.
+- Quoted values are supported: `--instructions "focus on performance"`.
+- Unknown flags are treated as part of the task description.
+
+### Configure Run
+**If ALL configuration values are determined from parsed arguments** (model is set, instructions is set or "none", and level is set to a specific number):
+- Set `AGENT_MODEL` from `--model` value (`inherited` maps to `null`)
+- Set `USER_INSTRUCTIONS` from `--instructions` value (`none` maps to `null`)
+- Set level from `--level` or bare level value
+- **Skip `AskUserQuestion` entirely** — proceed directly to Auto-Detect or Verify Prerequisites
+
+**Otherwise**, use `AskUserQuestion` to ask ONLY for values not yet determined from arguments. Ask all remaining questions in a **single call**.
+
+**Ask only if model was NOT set from arguments:**
 
 1. **Model** (header: "Model"): "Which model should agents use?"
    - "Inherited (Recommended)" — agents use the orchestrator's current model (no `model` parameter set on spawned agents)
@@ -25,13 +42,15 @@ Use `AskUserQuestion` to let the user steer the run before committing resources.
    - "Sonnet" — use `sonnet` for all spawned agents (balanced capability and cost)
    - "Haiku" — use `haiku` for all spawned agents (fastest, lowest cost)
 
+**Ask only if instructions were NOT set from arguments:**
+
 2. **Instructions** (header: "Instructions"): "Any special instructions, constraints, or focus areas for this task?"
    - "None — use defaults (Recommended)" — no additional steering
    - "Performance focus" — prioritize runtime performance in all implementations
    - "Minimal changes" — make the smallest possible diff to achieve the goal
    The user can also provide free-text via the "Other" option.
 
-**Ask only if level was NOT specified in `$ARGUMENTS`:**
+**Ask only if level was NOT specified in arguments (neither `--level` nor bare `1|2|3`):**
 
 3. **Effort Level** (header: "Effort"): "What effort level?"
    - "Auto-detect (Recommended)" — orchestrator classifies based on task characteristics

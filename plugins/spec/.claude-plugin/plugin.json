@@ -1,0 +1,5 @@
+{
+  "name": "spec",
+  "description": "Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique to produce specs complete enough for an LLM to implement from",
+  "author": { "name": "Cole" }
+}

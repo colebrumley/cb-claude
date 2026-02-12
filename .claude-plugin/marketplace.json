@@ -12,6 +12,12 @@
       "source": "./plugins/effort",
       "description": "Effort-scaled parallel implementation — throw compute at a problem with tournament-style multi-agent evaluation",
       "version": "1.0.0"
+    },
+    {
+      "name": "spec",
+      "source": "./plugins/spec",
+      "description": "Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique",
+      "version": "1.0.0"
     }
   ]
 }

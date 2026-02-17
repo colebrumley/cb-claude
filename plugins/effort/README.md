@@ -54,6 +54,6 @@ Before spawning any agents, `/effort` prompts you to configure the run:
 
 ## Install
 
-```bash
-claude plugin add /path/to/plugins/effort
+```
+/plugin install effort@cb-claude
 ```

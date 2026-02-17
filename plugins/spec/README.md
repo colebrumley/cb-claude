@@ -53,6 +53,6 @@ Technical spec writing — throw rigor at specification.
 
 ## Install
 
-```bash
-claude plugin add /path/to/plugins/spec
+```
+/plugin install spec@cb-claude
 ```

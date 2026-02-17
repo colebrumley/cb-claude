@@ -13,6 +13,9 @@ A Claude Code plugin marketplace by Cole.
 | Plugin | Description | Install |
 |--------|-------------|---------|
 | [effort](plugins/effort) | Effort-scaled parallel implementation — throw compute at a problem with tournament-style multi-agent evaluation | `/plugin install effort@cb-claude` |
+| [spec](plugins/spec) | Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique | `/plugin install spec@cb-claude` |
+| [eval-spec](plugins/eval-spec) | External evaluation spec generator — SRE-minded black-box validation specs with strong oracles and reproducible scenarios | `/plugin install eval-spec@cb-claude` |
+| [anti-sycophancy](plugins/anti-sycophancy) | Always-on critical feedback — installs pushback rules into CLAUDE.md with a hook to enforce persistence | `/plugin install anti-sycophancy@cb-claude` |
 
 ## Adding a new plugin
 
@@ -24,6 +27,7 @@ plugins/<name>/
     plugin.json       # Plugin metadata
   agents/             # Agent definitions (optional)
   commands/           # Slash commands (optional)
+  README.md           # Plugin documentation
 ```
 
 2. Add an entry to `.claude-plugin/marketplace.json`:

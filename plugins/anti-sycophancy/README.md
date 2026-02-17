@@ -44,3 +44,9 @@ After this:
 The hook fires after every Write or Edit tool call. If the target file is a CLAUDE.md and the Critical Feedback Protocol section (identified by HTML comment markers) is missing, the hook sends a message telling Claude to re-add it.
 
 The hook **never blocks** writes — it only provides post-write feedback. It uses `python3` for JSON parsing with `jq` as fallback.
+
+## Install
+
+```
+/plugin install anti-sycophancy@cb-claude
+```

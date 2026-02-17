@@ -295,8 +295,8 @@ If `AGENT_MODEL` is set, pass it as `model`.
 
 Wait for all critics to complete.
 ---
-## Phase 6: Aggregate & Present Findings
-The orchestrator (not an agent) processes critic outputs:
+## Phase 6: Aggregate & Present Findings with Proposed Fixes
+The orchestrator (not an agent) processes critic outputs. **The user drives all revision decisions — no autonomous fixing.**
 
 ### Deduplication & Grouping
 1. Collect all findings from all critics
@@ -305,32 +305,51 @@ The orchestrator (not an agent) processes critic outputs:
 4. Note cross-perspective consensus (issues raised by 2+ critics are stronger signals)
 5. Summarize to `${SPEC_DIR}/artifacts/critic-summary.md`
 
+### Generate Proposed Fixes
+For each critical and major finding, the orchestrator generates a **concrete proposed spec change**:
+- What section to modify (or what new section/text to add)
+- The specific text to add, change, or remove
+- Number each proposed fix sequentially: **[R1]**, **[R2]**, **[R3]**, etc.
+
 ### Present to User
-Show:
-- Count of findings by severity
-- Critical issues (full detail)
-- Major issues (full detail)
-- Minor issues (summary)
-- Cross-perspective consensus highlights
-- Spec drift warnings (if any)
+Show the full revision proposal with proposed fixes highlighted:
+```
+### Findings Summary
+- Critical: X | Major: Y | Minor: Z
+
+### Proposed Revisions
+
+**[R1] Critical: <issue title>**
+Raised by: <perspective(s)>
+Spec reference: <quoted section or "ABSENT — no section addresses X">
+> **Proposed fix:** <concrete spec change — what to add, modify, or remove>
+
+**[R2] Major: <issue title>**
+Raised by: <perspective(s)>
+Spec reference: <quoted section or "ABSENT">
+> **Proposed fix:** <concrete spec change>
+
+...
+
+### Minor Issues (no proposed fixes — for awareness only)
+- <brief list>
+```
 
 ### Ask User via AskUserQuestion
-1. "Address all critical + major issues (Recommended)" — revise spec with all significant findings
-2. "Address critical only" — revise spec with only critical findings
-3. "Ship as-is" — proceed to finalize without revision
-4. "Provide guidance" — user provides specific direction via "Other" free-text
+1. "Accept all proposed fixes (Recommended)" — apply all [R1], [R2], etc. to the spec
+2. "Ship as-is" — proceed to finalize without revision
+3. "Modify" — user specifies in "Other" which fixes to accept/reject/change (e.g., "Accept R1, R3. Skip R2. For R4, instead do X.")
 
-The user can also select "Other" to: start over with more detail (returns to Phase 3) or provide specific guidance.
+The user can also select "Other" to: start over with more detail (returns to Phase 3), accept a subset, or provide per-fix guidance.
 
 If user selects "Ship as-is", skip Phase 7 and go to Phase 8.
 If user selects guidance that indicates "start over" or "more detail", return to Phase 3 with current rubric state.
 ---
 ## Phase 7: Refinement
-### Prepare Revision Context
-Based on user's choice:
-- "Address all": include all critical + major findings
-- "Address critical only": include only critical findings
-- "Provide guidance": include user's free-text plus relevant findings
+### Prepare Approved Revision Set
+Based on user's response in Phase 6:
+- "Accept all": include all proposed fixes [R1], [R2], etc.
+- "Modify": include only the fixes the user accepted, with any user modifications applied. Exclude fixes the user explicitly rejected or skipped.
 
 ### Launch Drafter in Revise Mode
 Spawn `spec-drafter` teammate in REVISE mode:
@@ -338,16 +357,16 @@ Spawn `spec-drafter` teammate in REVISE mode:
 Task: "You are in REVISE mode.
 ## Existing Spec
 Read the spec at: ${SPEC_DIR}/artifacts/spec-draft.md
-## Critic Findings
-<filtered findings based on user's choice>
+## Approved Revisions
+<numbered list of user-approved fixes, each with its [RN] identifier, the finding, and the concrete fix to apply. Only include fixes the user approved.>
 ## User Guidance
-<user's direction, or 'Address all critical and major issues'>
+<any additional user direction, or 'None'>
 ## Output Path
 Write the revised spec to: ${SPEC_DIR}/artifacts/spec-final.md
 ## Instructions
 <USER_INSTRUCTIONS or 'None'>
 
-Revise the spec to address the listed findings while preserving existing traceability. Add [REVISED: reason] annotations to changed requirements."
+Apply ONLY the approved revisions listed above. Do not make autonomous changes beyond what is specified. Use inline citation markers [^RN] at each point of change, and collect all revision notes in a '## Revision Log' section at the end of the document."
 Agent: spec-drafter
 ```
 

@@ -162,19 +162,28 @@ Every requirement MUST have a source annotation:
 ---
 ## Mode 2: Revise
 ### Process
-1. Read existing spec, critic findings, and user guidance
-2. Categorize each critic finding: accept / reject with rationale / partially accept
-3. Apply accepted changes while preserving spec structure
-4. Re-explore codebase if critics identified missing evidence
-5. Update traceability annotations
-6. Add revision notes to the Appendix
+1. Read existing spec and the list of **approved revisions** (pre-approved by the user — do not second-guess)
+2. Apply each approved revision exactly as specified — do not add, remove, or modify beyond what was approved
+3. Re-explore codebase if approved revisions require new evidence (e.g., critic identified a missing code reference)
+4. Preserve all existing traceability annotations
+5. For each applied revision, insert an inline citation marker `[^RN]` at the point of change (where N matches the revision number, e.g., `[^R1]`, `[^R2]`)
+6. Add a `## Revision Log` section at the **end** of the document listing all applied revisions
 7. Write revised spec to output path
 
 ### Revision Rules
+- **Apply only approved revisions** — the user has already decided what to fix. Do not autonomously accept, reject, or reinterpret critic findings.
 - Preserve all existing traceability annotations
-- Do not remove user-confirmed requirements to satisfy a critic
-- If user guidance conflicts with a critic finding, user guidance wins
-- Add `[REVISED: reason]` annotation to changed requirements
+- Do not remove user-confirmed requirements
+- If user guidance accompanies a revision, follow user guidance exactly
+- **Do not add inline `[REVISED: reason]` annotations** — use endnote citations only
+- Each inline citation is a markdown footnote marker: `[^R1]`, `[^R2]`, etc.
+- The `## Revision Log` at the end of the document uses this format:
+  ```
+  ## Revision Log
+  [^R1]: <Section reference> — <what was changed and why>
+  [^R2]: <Section reference> — <what was changed and why>
+  ...
+  ```
 - Update the Appendix adversarial review summary
 ---
 ## The Iron Law

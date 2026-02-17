@@ -9,9 +9,10 @@ Effort-scaled parallel implementation — throw money at a problem.
 ## Usage
 
 ```
-/effort add a hello endpoint          # auto-detect effort level
-/effort 2 add user authentication     # explicit level 2
-/effort 3 redesign the data layer     # level 3 (ludicrous mode)
+/effort add a hello endpoint              # auto-detect effort level
+/effort 2 add user authentication         # explicit level 2
+/effort 3 redesign the data layer         # level 3 (ludicrous mode)
+/effort --permissions approve 2 add auth  # skip permission prompt, auto-approve
 ```
 
 ## Effort Levels
@@ -29,6 +30,7 @@ Before spawning any agents, `/effort` prompts you to configure the run:
 - **Model** — choose which model agents use (inherited from orchestrator by default, or explicitly set to opus/sonnet/haiku)
 - **Instructions** — provide optional constraints or focus areas (e.g. "performance focus", "minimal changes", or free-text)
 - **Effort level** — if not specified in the command, choose the level or let it auto-detect
+- **Permissions** — pre-approve Bash commands so agents can work without interrupting you for every shell command. Detects your project's build tooling (npm, cargo, make, etc.) and writes permission rules to `.claude/settings.local.json` (gitignored, local-only)
 
 ## How it works
 

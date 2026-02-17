@@ -16,6 +16,7 @@ Extract from `$ARGUMENTS` in order:
    - `--model <opus|sonnet|haiku|inherited>` — pre-sets AGENT_MODEL
    - `--instructions "<text>"` or `--instructions none` — pre-sets USER_INSTRUCTIONS (`none` maps to `null`)
    - `--level <1|2|3|auto>` — pre-sets effort level (alternative to bare number)
+   - `--permissions <approve|skip>` — pre-sets command pre-approval (`approve` writes detected commands to settings, `skip` does nothing)
 2. **Bare level** `1|2|3` (optional, legacy syntax, same as `--level`)
 3. **Remaining text** = task description
 
@@ -78,6 +79,62 @@ mkdir -p "${EFFORT_DIR}/artifacts"
 grep -qxF '.worktrees/' "${REPO_ROOT}/.gitignore" 2>/dev/null || echo '.worktrees/' >> "${REPO_ROOT}/.gitignore"
 if [ -n "$(git status --porcelain)" ]; then git stash push -m "effort-auto-stash-${EFFORT_ID}"; STASH_REF="effort-auto-stash-${EFFORT_ID}"; fi
 ```
+### Pre-Approve Agent Commands
+If `--permissions` was set to `approve`, skip the AskUserQuestion in Step 3 and write directly. If set to `skip`, skip this entire section.
+
+Without `--dangerously-skip-permissions`, every agent Bash call triggers a user approval prompt — multiplied across a team of parallel agents, this creates unbearable context switching. Pre-approve known commands in `.claude/settings.local.json` to eliminate this.
+
+**Step 1: Detect project commands.**
+Scan `${REPO_ROOT}` for build tooling and record the matching permission patterns:
+| File | Patterns to add |
+|------|----------------|
+| `package.json` | `Bash(npm *)`, `Bash(npx *)` |
+| `yarn.lock` | `Bash(yarn *)` |
+| `pnpm-lock.yaml` | `Bash(pnpm *)` |
+| `bun.lockb` / `bun.lock` | `Bash(bun *)`, `Bash(bunx *)` |
+| `Makefile` | `Bash(make *)` |
+| `Justfile` | `Bash(just *)` |
+| `Cargo.toml` | `Bash(cargo *)` |
+| `pyproject.toml` / `setup.py` / `requirements.txt` | `Bash(python *)`, `Bash(pytest *)`, `Bash(pip *)` |
+| `go.mod` | `Bash(go *)` |
+| `Gemfile` | `Bash(bundle *)`, `Bash(rake *)` |
+
+Only add patterns for tooling that actually exists in the repo.
+
+**Step 2: Build the full permission list.**
+Combine detected project patterns with effort's baseline needs:
+```
+Baseline (always included):
+  Bash(git *)
+  Bash(mkdir *)
+  Bash(cd *)
+  Bash(rm -rf .worktrees/*)
+  Bash(grep *)
+  Bash(echo *)
+
+Detected (from Step 1):
+  <project-specific patterns>
+```
+
+**Step 3: Present and ask.**
+Use `AskUserQuestion` — single question:
+- **Header**: "Permissions"
+- **Question**: Format the full list as a readable block and ask:
+  `"Pre-approve these Bash commands for agent use? Writes to .claude/settings.local.json (gitignored, local-only).\n\n<formatted list>"`
+- **Options**:
+  1. `"Approve all (Recommended)"` — write full list to settings
+  2. `"Skip — I'll approve individually"` — do nothing, agents will prompt for each command
+
+**Step 4: Write settings.**
+If the user approved:
+1. `mkdir -p "${REPO_ROOT}/.claude"`.
+2. Read `${REPO_ROOT}/.claude/settings.local.json` if it exists, otherwise start with `{"permissions":{"allow":[]}}`.
+3. Merge new entries into `permissions.allow` (skip duplicates).
+4. Write the updated file.
+5. Confirm: _"Pre-approved N commands in .claude/settings.local.json"_
+
+If the user skipped, continue without writing. Agents will prompt for each command individually.
+
 ### Initialize State Tracking
 Create `${EFFORT_DIR}/run.json`:
 ```json

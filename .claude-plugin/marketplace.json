@@ -20,12 +20,6 @@
       "version": "1.0.0"
     },
     {
-      "name": "eval-spec",
-      "source": "./plugins/eval-spec",
-      "description": "External evaluation spec generator — SRE-minded black-box validation specs with strong oracles and reproducible scenarios",
-      "version": "1.0.0"
-    },
-    {
       "name": "anti-sycophancy",
       "source": "./plugins/anti-sycophancy",
       "description": "Always-on critical feedback — installs pushback rules into CLAUDE.md with a hook to enforce persistence",

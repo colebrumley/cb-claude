@@ -30,6 +30,12 @@
       "source": "./plugins/code-review",
       "description": "Multi-perspective code review — parallel adversarial critics with severity-calibrated findings",
       "version": "1.0.0"
+    },
+    {
+      "name": "test",
+      "source": "./plugins/test",
+      "description": "Multi-perspective test generation — parallel categorized writers with synthesis and verification against existing code",
+      "version": "1.0.0"
     }
   ]
 }

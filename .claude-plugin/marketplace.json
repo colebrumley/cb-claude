@@ -24,6 +24,12 @@
       "source": "./plugins/anti-sycophancy",
       "description": "Always-on critical feedback — installs pushback rules into CLAUDE.md with a hook to enforce persistence",
       "version": "1.0.0"
+    },
+    {
+      "name": "code-review",
+      "source": "./plugins/code-review",
+      "description": "Multi-perspective code review — parallel adversarial critics with severity-calibrated findings",
+      "version": "1.0.0"
     }
   ]
 }

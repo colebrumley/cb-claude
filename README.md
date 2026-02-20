@@ -15,6 +15,7 @@ A Claude Code plugin marketplace by Cole.
 | [effort](plugins/effort) | Effort-scaled parallel implementation — throw compute at a problem with tournament-style multi-agent evaluation | `/plugin install effort@cb-claude` |
 | [spec](plugins/spec) | Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique | `/plugin install spec@cb-claude` |
 | [anti-sycophancy](plugins/anti-sycophancy) | Always-on critical feedback — installs pushback rules into CLAUDE.md with a hook to enforce persistence | `/plugin install anti-sycophancy@cb-claude` |
+| [code-review](plugins/code-review) | Multi-perspective code review — parallel adversarial critics with severity-calibrated findings | `/plugin install code-review@cb-claude` |
 
 ## Adding a new plugin
 

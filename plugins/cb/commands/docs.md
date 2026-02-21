@@ -430,7 +430,7 @@ If `AGENT_MODEL` is set, pass it as `model`.
 
 Wait for all critics to complete.
 ---
-## Phase 7: Review & Refine (standard+ only)
+## Phase 7: Aggregate Findings & Critic-Driven Questioning (standard+ only)
 **Precondition**: `DEPTH` is `standard` or `deep` AND at least 1 critic produced output AND `REVISION_ROUNDS` > 0.
 
 ### Deduplication & Grouping
@@ -440,71 +440,88 @@ Wait for all critics to complete.
 4. Note cross-perspective consensus (issues raised by 2+ critics are stronger signals)
 5. Summarize to `${DOCS_DIR}/artifacts/critic-summary.md`
 
-### Generate Proposed Fixes
-For each critical and major finding, generate a **concrete proposed doc change**:
-- What section to modify (or what new section/text to add)
-- The specific text to add, change, or remove
-- Number each proposed fix sequentially: **[R1]**, **[R2]**, **[R3]**, etc.
-
-### Present to User
-Show the full revision proposal with proposed fixes highlighted:
+### Present Findings Summary
+Show the critic findings grouped by severity (no proposed fixes — findings only):
 ```
 ### Findings Summary
 - Critical: X | Major: Y | Minor: Z
 
-### Proposed Revisions
-
-**[R1] Critical: <issue title>**
+### Critical Findings
+**[F1] <issue title>**
 Raised by: <perspective(s)>
 Doc reference: <quoted section or "ABSENT — no section addresses X">
-> **Proposed fix:** <concrete doc change — what to add, modify, or remove>
+> <description of the issue and why it matters>
 
-**[R2] Major: <issue title>**
-Raised by: <perspective(s)>
-Doc reference: <quoted section or "ABSENT">
-> **Proposed fix:** <concrete doc change>
-
+**[F2] <issue title>**
 ...
 
-### Minor Issues (no proposed fixes — for awareness only)
+### Major Findings
+**[F3] <issue title>**
+...
+
+### Minor Findings (for awareness only)
 - <brief list>
 ```
 
-### Ask User via AskUserQuestion
-1. "Accept all proposed fixes (Recommended)" — apply all [R1], [R2], etc. to the doc
-2. "Ship as-is" — proceed to finalize without revision
-3. "Modify" — user specifies in "Other" which fixes to accept/reject/change (e.g., "Accept R1, R3. Skip R2. For R4, instead do X.")
+### Convert Findings to Questions
+Map critic findings back to the rubric and generate targeted questions:
+1. For each critical/major finding, identify which rubric dimension(s) it affects
+2. Re-score affected dimensions downward if the finding reveals a genuine gap (e.g., a dimension scored 2 but critics found a significant inaccuracy → drop to 1)
+3. Generate 2-4 targeted questions that address the highest-impact findings
+4. Questions must be concrete and specific to the issues critics raised — not generic rehashes of Phase 3 questions
+5. Frame questions to elicit the user's intent, not to lead toward a predetermined fix
+
+### Ask User
+Use a single `AskUserQuestion` call combining the critic-driven questions with a proceed decision.
+
+Include a final question:
+- **Header**: "Proceed"
+- **Question**: "The critics found issues that affect your rubric scores (see above). How would you like to proceed?"
+  - "Answer questions and revise (Recommended)" — your answers will inform a revised draft
+  - "Ship as-is" — finalize without changes
 
 If user selects "Ship as-is", skip revision and go to Phase 8.
-If user selects guidance that indicates "start over" or "more detail", return to Phase 3 with current rubric state.
+
+### Update Rubric
+Parse user answers and update dimension scores (same scoring rules as Phase 3). Append to `clarification_log` as a new round tagged `source: critic-driven`. Show updated rubric progress to user.
 
 ### Launch Writer in Revise Mode
 Spawn `docs-writer` teammate in REVISE mode:
 ```
 Task: "You are in REVISE mode.
-## Existing Doc
+## Doc Type
+<DOC_TYPE>
+## Persona
+<PERSONA>
+## Previous Draft
 Read the documentation at: ${DOCS_DIR}/artifacts/draft.md
-## Approved Revisions
-<numbered list of user-approved fixes, each with its [RN] identifier, the finding, and the concrete fix to apply. Only include fixes the user approved.>
-## User Guidance
-<any additional user direction, or 'None'>
+## Target Files
+<list of file paths from target-files.txt>
+## Rubric State (Updated)
+<rubric with dimension names, weights, and updated scores — highlight dimensions that changed after critic-driven questioning>
+## Full Clarification Log
+<full Q&A log from all rounds, including the critic-driven round from Phase 7>
+## Critic Summary
+<aggregated critic findings from ${DOCS_DIR}/artifacts/critic-summary.md>
 ## Output Path
 Write the revised documentation to: ${DOCS_DIR}/artifacts/doc-final.md
 ## Instructions
 <USER_INSTRUCTIONS or 'None'>
 
-Apply ONLY the approved revisions listed above. Do not make autonomous changes beyond what is specified. Use inline citation markers [^RN] at each point of change, and collect all revision notes in a '## Revision Log' section at the end of the document."
+Revise the documentation using the enriched context. Focus on dimensions where scores changed after critic-driven questioning. The user's new answers take precedence over your previous draft choices. Every factual claim about code behavior must cite file:line."
 Agent: docs-writer
 ```
+If `AGENT_MODEL` is set (not null), pass it as the `model` parameter. If `USER_INSTRUCTIONS` is set, prepend as `## User Instructions` section.
 
 Wait for completion. Verify `doc-final.md` was written.
 
 ### Deep: Second Revision Round
-For `deep` depth only (2 total revision rounds), repeat the critique → revise cycle once more:
+For `deep` depth only (2 total revision rounds), repeat the critique → question → revise cycle once more:
 1. Launch critics against `doc-final.md` (same perspectives)
-2. Deduplicate and present new findings
-3. Ask user to approve/reject fixes
-4. Launch writer in REVISE mode against `doc-final.md`, output to `doc-final-v2.md`
+2. Deduplicate findings, present summary, convert to questions (same process as above)
+3. Ask user critic-driven questions + proceed decision
+4. Update rubric with new answers
+5. Launch writer in REVISE mode against `doc-final.md` with enriched context, output to `doc-final-v2.md`
 ---
 ## Phase 8: Finalize & Present
 ### Score Rubric Against Final Draft
@@ -611,7 +628,7 @@ Check preconditions before each phase; if unmet, run fallback.
 | Phase 4 | At least 1 round of questioning completed; target-files.txt exists (file/dir) or description provided | Skip research if no target files; abort if no target at all |
 | Phase 5 | target-files.txt exists and is non-empty; research briefing exists (or all researchers failed) | Abort with cleanup |
 | Phase 6 | draft.md exists and is non-empty | Abort with cleanup |
-| Phase 7 | depth is standard or deep; at least 1 critic produced output; revision rounds > 0 | Skip revision, go to Phase 8 |
+| Phase 7 | depth is standard or deep; at least 1 critic produced output; revision rounds > 0 | Skip questioning/revision, go to Phase 8 |
 | Phase 8 | Final doc exists (draft or revised) | Present whatever exists |
 ---
 ## The Iron Law

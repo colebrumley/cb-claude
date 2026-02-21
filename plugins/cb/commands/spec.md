@@ -295,8 +295,8 @@ If `AGENT_MODEL` is set, pass it as `model`.
 
 Wait for all critics to complete.
 ---
-## Phase 6: Aggregate & Present Findings with Proposed Fixes
-The orchestrator (not an agent) processes critic outputs. **The user drives all revision decisions — no autonomous fixing.**
+## Phase 6: Aggregate Findings & Critic-Driven Questioning
+The orchestrator (not an agent) processes critic outputs. **Critic findings feed back into the question/rubric loop — no autonomous fixing.**
 
 ### Deduplication & Grouping
 1. Collect all findings from all critics
@@ -305,70 +305,88 @@ The orchestrator (not an agent) processes critic outputs. **The user drives all 
 4. Note cross-perspective consensus (issues raised by 2+ critics are stronger signals)
 5. Summarize to `${SPEC_DIR}/artifacts/critic-summary.md`
 
-### Generate Proposed Fixes
-For each critical and major finding, the orchestrator generates a **concrete proposed spec change**:
-- What section to modify (or what new section/text to add)
-- The specific text to add, change, or remove
-- Number each proposed fix sequentially: **[R1]**, **[R2]**, **[R3]**, etc.
-
-### Present to User
-Show the full revision proposal with proposed fixes highlighted:
+### Present Findings Summary
+Show the critic findings grouped by severity (no proposed fixes — findings only):
 ```
 ### Findings Summary
 - Critical: X | Major: Y | Minor: Z
 
-### Proposed Revisions
-
-**[R1] Critical: <issue title>**
+### Critical Findings
+**[F1] <issue title>**
 Raised by: <perspective(s)>
 Spec reference: <quoted section or "ABSENT — no section addresses X">
-> **Proposed fix:** <concrete spec change — what to add, modify, or remove>
+> <description of the issue and why it matters>
 
-**[R2] Major: <issue title>**
-Raised by: <perspective(s)>
-Spec reference: <quoted section or "ABSENT">
-> **Proposed fix:** <concrete spec change>
-
+**[F2] <issue title>**
 ...
 
-### Minor Issues (no proposed fixes — for awareness only)
+### Major Findings
+**[F3] <issue title>**
+...
+
+### Minor Findings (for awareness only)
 - <brief list>
 ```
 
-### Ask User via AskUserQuestion
-1. "Accept all proposed fixes (Recommended)" — apply all [R1], [R2], etc. to the spec
-2. "Ship as-is" — proceed to finalize without revision
-3. "Modify" — user specifies in "Other" which fixes to accept/reject/change (e.g., "Accept R1, R3. Skip R2. For R4, instead do X.")
+### Convert Findings to Questions
+Map critic findings back to the rubric and generate targeted questions:
+1. For each critical/major finding, identify which rubric dimension(s) it affects
+2. Re-score affected dimensions downward if the finding reveals a genuine gap (e.g., a dimension scored 2 but critics found a significant missing concern → drop to 1)
+3. Generate 2-4 targeted questions that address the highest-impact findings
+4. Questions must be concrete and specific to the issues critics raised — not generic rehashes of Phase 3 questions
+5. Frame questions to elicit the user's intent, not to lead toward a predetermined fix
 
-The user can also select "Other" to: start over with more detail (returns to Phase 3), accept a subset, or provide per-fix guidance.
+### Ask User
+Use a single `AskUserQuestion` call combining the critic-driven questions with a proceed decision.
+
+Include a final question:
+- **Header**: "Proceed"
+- **Question**: "The critics found issues that affect your rubric scores (see above). How would you like to proceed?"
+  - "Answer questions and revise (Recommended)" — your answers will inform a revised draft
+  - "Ship as-is" — finalize without changes
 
 If user selects "Ship as-is", skip Phase 7 and go to Phase 8.
-If user selects guidance that indicates "start over" or "more detail", return to Phase 3 with current rubric state.
+
+### Update Rubric
+Parse user answers and update dimension scores (same scoring rules as Phase 3). Append to `clarification_log` as a new round tagged `source: critic-driven`. Show updated rubric progress to user.
 ---
-## Phase 7: Refinement
-### Prepare Approved Revision Set
-Based on user's response in Phase 6:
-- "Accept all": include all proposed fixes [R1], [R2], etc.
-- "Modify": include only the fixes the user accepted, with any user modifications applied. Exclude fixes the user explicitly rejected or skipped.
+## Phase 7: Revise with Enriched Context
+### Prepare Context
+Compile for the drafter:
+- `SPEC_TYPE`
+- `ORIGINAL_IDEA`
+- Full `clarification_log` from Phase 3 AND Phase 6 (including critic-driven answers)
+- Updated `rubric` state with re-scored dimensions
+- Critic summary from `${SPEC_DIR}/artifacts/critic-summary.md`
+- Previous draft path: `${SPEC_DIR}/artifacts/spec-draft.md`
+- Output path: `${SPEC_DIR}/artifacts/spec-final.md`
+- `USER_INSTRUCTIONS` (if any)
 
 ### Launch Drafter in Revise Mode
 Spawn `spec-drafter` teammate in REVISE mode:
 ```
 Task: "You are in REVISE mode.
-## Existing Spec
-Read the spec at: ${SPEC_DIR}/artifacts/spec-draft.md
-## Approved Revisions
-<numbered list of user-approved fixes, each with its [RN] identifier, the finding, and the concrete fix to apply. Only include fixes the user approved.>
-## User Guidance
-<any additional user direction, or 'None'>
+## Spec Type
+<SPEC_TYPE>
+## Original Idea
+<ORIGINAL_IDEA>
+## Previous Draft
+Read the previous draft at: ${SPEC_DIR}/artifacts/spec-draft.md
+## Rubric State (Updated)
+<rubric with dimension names, weights, and updated scores — highlight dimensions that changed after Phase 6>
+## Full Clarification Log
+<full Q&A log from all rounds, including the critic-driven round from Phase 6>
+## Critic Summary
+<aggregated critic findings from ${SPEC_DIR}/artifacts/critic-summary.md>
 ## Output Path
 Write the revised spec to: ${SPEC_DIR}/artifacts/spec-final.md
 ## Instructions
 <USER_INSTRUCTIONS or 'None'>
 
-Apply ONLY the approved revisions listed above. Do not make autonomous changes beyond what is specified. Use inline citation markers [^RN] at each point of change, and collect all revision notes in a '## Revision Log' section at the end of the document."
+Revise the spec using the enriched context. Focus on dimensions where scores changed after critic-driven questioning. The user's new answers take precedence over your previous draft choices. Every requirement must trace to a user answer, codebase evidence (file:line), or an explicit [ASSUMPTION] marker."
 Agent: spec-drafter
 ```
+If `AGENT_MODEL` is set (not null), pass it as the `model` parameter. If `USER_INSTRUCTIONS` is set, prepend as `## User Instructions` section.
 
 Wait for completion. Verify `spec-final.md` was written.
 ---
@@ -466,7 +484,7 @@ BEFORE advancing to any new phase:
    - Phase 4 requires: at least 1 round of questioning completed
    - Phase 5 requires: spec-draft.md exists and is non-empty
    - Phase 6 requires: at least 1 critic produced output
-   - Phase 7 requires: user chose to revise (not "ship as-is")
+   - Phase 7 requires: user answered critic-driven questions (not "ship as-is")
    - Phase 8 requires: final spec exists (draft or revised)
 4. ONLY THEN: Enter the next phase
 ```

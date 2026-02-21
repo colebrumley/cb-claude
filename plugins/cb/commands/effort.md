@@ -203,6 +203,7 @@ Check preconditions before each phase; if unmet, run fallback.
 | Phase 6 | At least 2 solutions from Phase 5 with score >= 60 | Use whatever solutions exist |
 | Phase 9 | A winning solution has been selected | Skip adversarial; proceed to verification |
 | Phase 10 | A winning branch exists | Abort with cleanup |
+| Phase 11 | Retry conditions met AND user approved retry | Skip retry; proceed with current solution |
 | Phase 14 | User has confirmed "apply" | Do not merge; preserve branches for manual review |
 ---
 ## Phase 2: Research + Test Generation
@@ -343,12 +344,39 @@ cd "${EFFORT_DIR}/<winner-worktree>"
 ```
 Report pass/fail explicitly.
 ---
-## Phase 11: Retry (L2+, Conditional)
+## Phase 11: Present Issues & Retry (L2+, Conditional)
 ### Retry Trigger Conditions
-**L2**: one retry if any true: score <80, adversarial critical issue, verification failure.
-Retry steps: create new worktree from winner -> launch one definitive IMPLEMENT worker with task + research summary + winner path + all feedback/issues -> require fix-without-rewrite + tests + commit -> rerun verification only -> if still failing, present best-scoring solution with warning.
-**L3**: one retry if any true: score <85, adversarial critical/moderate issue, verification failure.
-After definitive run, rerun adversarial review; if definitive scores lower than original, keep original.
+**L2**: retry eligible if any true: score <80, adversarial critical issue, verification failure.
+**L3**: retry eligible if any true: score <85, adversarial critical/moderate issue, verification failure.
+
+If no retry conditions are met, skip to Phase 12 (L3) or Phase 13.
+
+### Present Issues to User
+If retry conditions are met, present the issues before retrying:
+```
+### Issues Requiring Attention
+**Score**: X/100 (threshold: <80|85>)
+
+**Adversarial Findings** (if any):
+- <bulleted list of critical/major issues from Phase 9>
+
+**Verification Failures** (if any):
+- <test/lint/build failures from Phase 10>
+```
+
+### Ask User
+Use `AskUserQuestion`:
+- **Header**: "Retry"
+- **Question**: "Issues were found that may need addressing. How would you like to proceed?"
+  - "Retry with fixes (Recommended)" — launch a worker to address the issues
+  - "Ship as-is" — proceed with the current solution despite issues
+  - "Provide guidance" — user specifies via "Other" what to prioritize or how to approach fixes
+
+If user selects "Ship as-is", skip to Phase 12 (L3) or Phase 13. Note unresolved issues in the final report.
+
+### Execute Retry
+Retry steps: create new worktree from winner -> launch one definitive IMPLEMENT worker with task + research summary + winner path + all feedback/issues + user guidance (if any) -> require fix-without-rewrite + tests + commit -> rerun verification only -> if still failing, present best-scoring solution with warning.
+**L3 additional**: After definitive run, rerun adversarial review; if definitive scores lower than original, keep original.
 Never exceed one retry pass.
 ---
 ## Phase 12: Final Review (Level 3 Only)

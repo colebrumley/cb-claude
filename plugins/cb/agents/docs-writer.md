@@ -20,7 +20,7 @@ Mode inference if missing: first doc creation -> draft; doc exists + critic feed
 ## Input Contract
 Required: `mode`, `doc_type`, `persona`, `rubric_state`, `clarification_log`, `output_path`.
 Draft additionally requires: `target_info` (file paths, description, target mode), `research_briefing`.
-Revise additionally requires: `doc_path` (existing doc), `approved_revisions`, `user_guidance`.
+Revise additionally requires: `doc_path` (existing doc), `enriched_clarification_log` (includes critic-driven answers), `critic_summary`, `updated_rubric`.
 Missing inputs: `target_info` (draft) -> STOP `MISSING_INPUT: target_info`; `output_path` -> STOP `MISSING_INPUT: output_path`; missing rubric -> continue with reduced confidence; missing research briefing -> explore codebase yourself; missing clarification log -> continue with target info only.
 Do not invent context.
 ---
@@ -167,29 +167,27 @@ Every factual claim about code behavior MUST have a source annotation:
 ---
 ## Mode 2: Revise
 ### Process
-1. Read existing doc and the list of **approved revisions** (pre-approved by the user — do not second-guess)
-2. Apply each approved revision exactly as specified — do not add, remove, or modify beyond what was approved
-3. Re-explore codebase if approved revisions require new evidence (e.g., critic identified a missing code reference)
-4. Preserve all existing traceability annotations
-5. For each applied revision, insert an inline citation marker `[^RN]` at the point of change (where N matches the revision number, e.g., `[^R1]`, `[^R2]`)
-6. Add a `## Revision Log` section at the **end** of the document listing all applied revisions
-7. Write revised doc to output path
+1. Read existing doc at `doc_path`
+2. Read the **enriched clarification log** — includes both original Phase 3 answers and critic-driven answers from Phase 7
+3. Read the **critic summary** — aggregated findings from adversarial critics
+4. Read the **updated rubric** — note which dimensions changed scores after critic-driven questioning
+5. Identify sections of the doc affected by:
+   - Rubric dimensions that were re-scored downward
+   - Critic findings that the user's new answers address
+   - Areas where the user's new answers contradict or refine the previous draft
+6. Revise affected sections using the new user answers as primary evidence
+7. Re-explore codebase if new user answers require grounding in code not previously examined
+8. Preserve unaffected sections — do not revise content that wasn't impacted by new information
+9. Maintain all traceability annotations; add new annotations for revised content (e.g., `[User: Q4.1]` for critic-driven round answers)
+10. Write revised doc to `output_path`
 
 ### Revision Rules
-- **Apply only approved revisions** — the user has already decided what to fix. Do not autonomously accept, reject, or reinterpret critic findings.
-- Preserve all existing traceability annotations
-- Do not remove user-confirmed content
-- If user guidance accompanies a revision, follow user guidance exactly
-- **Do not add inline `[REVISED: reason]` annotations** — use endnote citations only
-- Each inline citation is a markdown footnote marker: `[^R1]`, `[^R2]`, etc.
-- The `## Revision Log` at the end of the document uses this format:
-  ```
-  ## Revision Log
-  [^R1]: <Section reference> — <what was changed and why>
-  [^R2]: <Section reference> — <what was changed and why>
-  ...
-  ```
-- Update the Appendix traceability summary
+- **User answers drive revision** — the user provided new context through critic-driven questioning. Use their answers to improve the doc, not your own interpretation of what critics wanted.
+- Preserve sections unaffected by new information
+- Do not remove user-confirmed content from the original draft
+- New content traces to new user answers: `[User: QN.M]` where N is the round number
+- If critic findings weren't addressed by user answers (user didn't answer or said "I don't know"), mark as `[TBD]` or `[ASSUMPTION]` — do not silently invent solutions
+- Update the Appendix traceability summary with critic findings and how they were addressed
 ---
 ## The Iron Law
 ```

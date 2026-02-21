@@ -1,48 +1,118 @@
 # cb-claude
 
-A Claude Code plugin suite by Cole.
+A suite of Claude Code plugins by Cole.
 
 ## Install
 
+Add the marketplace, then install individual plugins:
+
 ```
 /plugin marketplace add colebrumley/cb-claude
-/plugin install cb@cb-claude
 ```
 
-## Commands
+Install all plugins:
 
-All commands are namespaced under `cb:`. Use `/cb:<command>` to invoke.
+```
+/plugin install effort spec code-review test critique docs anti-sycophancy snapshot eval-spec
+```
 
-| Command | Description |
-|---------|-------------|
-| `/cb:effort` | Effort-scaled parallel implementation — throw compute at a problem with tournament-style multi-agent evaluation |
-| `/cb:spec` | Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique |
-| `/cb:review` | Multi-perspective code review — parallel adversarial critics with severity-calibrated findings |
-| `/cb:test` | Multi-perspective test generation — parallel categorized writers with synthesis and verification against existing code |
-| `/cb:critique` | Adversarial code red-teaming — parallel attackers probe existing code for vulnerabilities, bugs, fragility, and design problems |
-| `/cb:docs` | Documentation generation — parallel researchers explore existing code while adversarial critics attack drafts |
-| `/cb:anti-sycophancy` | Always-on critical feedback — installs pushback rules into CLAUDE.md with a hook to enforce persistence |
-| `/cb:eval-spec` | External evaluation spec generator — SRE-minded black-box validation specs |
-| `/cb:rewind` | Rewind to the last snapshot — reset working tree to Claude's last checkpoint |
+Or install only what you need:
 
-## Agents
+```
+/plugin install effort
+/plugin install spec
+/plugin install code-review
+```
 
-| Agent | Description |
-|-------|-------------|
-| `cb:effort-researcher` | Deep codebase exploration for effort-scaled implementations |
-| `cb:effort-worker` | Multi-mode engineering worker (implement, write-tests, synthesize, refine) |
-| `cb:effort-reviewer` | Scoring, adversarial review, and final quality gates |
-| `cb:spec-drafter` | Writes and revises technical spec documents |
-| `cb:spec-critic` | Adversarial reviewer that critiques specs |
-| `cb:review-researcher` | Codebase context explorer for code review |
-| `cb:review-critic` | Perspective-based code reviewer |
-| `cb:test-researcher` | Code and test infrastructure explorer |
-| `cb:test-writer` | Perspective-based test writer |
-| `cb:critique-researcher` | Code context explorer for adversarial critique |
-| `cb:critique-attacker` | Perspective-based adversarial critic |
-| `cb:docs-researcher` | Codebase and documentation explorer |
-| `cb:docs-writer` | Documentation generator |
-| `cb:docs-critic` | Adversarial documentation critic |
-| `cb:eval-spec-researcher` | Codebase explorer for evaluation spec generation |
-| `cb:eval-spec-generator` | Evaluation spec generator |
-| `cb:eval-spec-critic` | Adversarial evaluation spec critic |
+## Plugins
+
+### effort
+
+Effort-scaled parallel implementation — throw compute at a problem with multi-agent workers, adversarial review, and synthesis.
+
+```
+/effort <task>
+/effort 3 <task>   # override effort level (1-3)
+```
+
+Agents: `effort-researcher`, `effort-worker`, `effort-reviewer`
+
+### spec
+
+Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique.
+
+```
+/spec <description>
+```
+
+Agents: `spec-drafter`, `spec-critic` | Skill: `writing-specs` (proactive)
+
+### code-review
+
+Multi-perspective code review — parallel adversarial critics with severity-calibrated findings.
+
+```
+/review [PR number|URL|branch-range]
+```
+
+Agents: `review-researcher`, `review-critic` | Skill: `reviewing-code` (proactive)
+
+### test
+
+Multi-perspective test generation — parallel writers produce categorized tests for existing code.
+
+```
+/test <target>
+```
+
+Agents: `test-researcher`, `test-writer` | Skill: `writing-tests` (proactive)
+
+### critique
+
+Adversarial code red-teaming — parallel attackers probe existing code for vulnerabilities, bugs, fragility, and design problems.
+
+```
+/critique <target>
+```
+
+Agents: `critique-researcher`, `critique-attacker` | Skill: `critiquing-code` (proactive)
+
+### docs
+
+Documentation generation — parallel researchers explore code while adversarial critics attack drafts for accuracy and completeness.
+
+```
+/docs <target>
+```
+
+Agents: `docs-researcher`, `docs-writer`, `docs-critic` | Skill: `writing-docs` (proactive)
+
+### eval-spec
+
+External evaluation spec generator — SRE-minded black-box validation specs with strong oracles and reproducible scenarios.
+
+```
+/eval-spec <system or change description>
+```
+
+Agents: `eval-spec-researcher`, `eval-spec-generator`, `eval-spec-critic`
+
+### anti-sycophancy
+
+Installs the Critical Feedback Protocol into CLAUDE.md with an enforcement hook. Makes Claude push back, challenge assumptions, and give honest critical feedback.
+
+```
+/anti-sycophancy install
+/anti-sycophancy check
+/anti-sycophancy remove
+```
+
+### snapshot
+
+Snapshot review and rewind — reset working tree to Claude's last checkpoint.
+
+```
+/rewind
+```
+
+Skill: `snapshot-review` (proactive)

@@ -1,5 +1,0 @@
-{
-  "name": "critique",
-  "description": "Adversarial code red-teaming — parallel attackers probe existing code from security, correctness, resilience, performance, maintainability, architecture, and data-integrity perspectives",
-  "author": { "name": "Cole" }
-}

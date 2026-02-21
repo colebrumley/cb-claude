@@ -8,45 +8,9 @@
   },
   "plugins": [
     {
-      "name": "effort",
-      "source": "./plugins/effort",
-      "description": "Effort-scaled parallel implementation — throw compute at a problem with tournament-style multi-agent evaluation",
-      "version": "1.0.0"
-    },
-    {
-      "name": "spec",
-      "source": "./plugins/spec",
-      "description": "Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique",
-      "version": "1.0.0"
-    },
-    {
-      "name": "anti-sycophancy",
-      "source": "./plugins/anti-sycophancy",
-      "description": "Always-on critical feedback — installs pushback rules into CLAUDE.md with a hook to enforce persistence",
-      "version": "1.0.0"
-    },
-    {
-      "name": "code-review",
-      "source": "./plugins/code-review",
-      "description": "Multi-perspective code review — parallel adversarial critics with severity-calibrated findings",
-      "version": "1.0.0"
-    },
-    {
-      "name": "test",
-      "source": "./plugins/test",
-      "description": "Multi-perspective test generation — parallel categorized writers with synthesis and verification against existing code",
-      "version": "1.0.0"
-    },
-    {
-      "name": "critique",
-      "source": "./plugins/critique",
-      "description": "Adversarial code red-teaming — parallel attackers probe existing code from security, correctness, resilience, performance, maintainability, architecture, and data-integrity perspectives",
-      "version": "1.0.0"
-    },
-    {
-      "name": "docs",
-      "source": "./plugins/docs",
-      "description": "Documentation generation — parallel researchers explore existing code while adversarial critics attack drafts for accuracy, completeness, clarity, usability, and maintainability",
+      "name": "cb",
+      "source": "./plugins/cb",
+      "description": "Cole's Claude Code plugin suite — effort-scaled implementation, spec writing, code review, test generation, adversarial critique, docs generation, anti-sycophancy, and snapshot review",
       "version": "1.0.0"
     }
   ]

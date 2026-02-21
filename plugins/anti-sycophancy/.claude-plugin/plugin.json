@@ -1,5 +1,0 @@
-{
-  "name": "anti-sycophancy",
-  "description": "Always-on critical feedback — installs a Critical Feedback Protocol into CLAUDE.md with a hook to enforce persistence across edits",
-  "author": { "name": "Cole" }
-}

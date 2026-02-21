@@ -1,5 +1,0 @@
-{
-  "name": "test",
-  "description": "Multi-perspective test generation — parallel writers produce categorized tests (core, edge, error, integration, security) against existing code with synthesis and verification",
-  "author": { "name": "Cole" }
-}

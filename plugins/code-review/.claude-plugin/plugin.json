@@ -1,5 +1,0 @@
-{
-  "name": "code-review",
-  "description": "Multi-perspective code review — parallel adversarial critics with severity-calibrated findings and codebase-grounded evidence",
-  "author": { "name": "Cole" }
-}

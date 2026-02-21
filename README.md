@@ -17,6 +17,7 @@ A Claude Code plugin marketplace by Cole.
 | [anti-sycophancy](plugins/anti-sycophancy) | Always-on critical feedback — installs pushback rules into CLAUDE.md with a hook to enforce persistence | `/plugin install anti-sycophancy@cb-claude` |
 | [code-review](plugins/code-review) | Multi-perspective code review — parallel adversarial critics with severity-calibrated findings | `/plugin install code-review@cb-claude` |
 | [test](plugins/test) | Multi-perspective test generation — parallel categorized writers with synthesis and verification against existing code | `/plugin install test@cb-claude` |
+| [critique](plugins/critique) | Adversarial code red-teaming — parallel attackers probe existing code from security, correctness, resilience, performance, maintainability, and architecture perspectives | `/plugin install critique@cb-claude` |
 
 ## Adding a new plugin
 

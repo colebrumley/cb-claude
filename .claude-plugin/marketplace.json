@@ -36,6 +36,12 @@
       "source": "./plugins/test",
       "description": "Multi-perspective test generation — parallel categorized writers with synthesis and verification against existing code",
       "version": "1.0.0"
+    },
+    {
+      "name": "critique",
+      "source": "./plugins/critique",
+      "description": "Adversarial code red-teaming — parallel attackers probe existing code from security, correctness, resilience, performance, maintainability, architecture, and data-integrity perspectives",
+      "version": "1.0.0"
     }
   ]
 }

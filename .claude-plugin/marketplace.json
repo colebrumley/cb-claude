@@ -3,7 +3,7 @@
   "owner": { "name": "Cole" },
   "metadata": {
     "description": "Claude Code plugins by Cole",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -11,55 +11,55 @@
       "name": "effort",
       "source": "./plugins/effort",
       "description": "Effort-scaled parallel implementation — multi-perspective workers, adversarial review, and synthesis",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "spec",
       "source": "./plugins/spec",
       "description": "Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "code-review",
       "source": "./plugins/code-review",
       "description": "Multi-perspective code review — parallel adversarial critics with severity-calibrated findings",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "test",
       "source": "./plugins/test",
       "description": "Multi-perspective test generation — parallel writers produce categorized tests for existing code",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "critique",
       "source": "./plugins/critique",
       "description": "Adversarial code red-teaming — parallel attackers probe existing code for vulnerabilities, bugs, and fragility",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "docs",
       "source": "./plugins/docs",
       "description": "Documentation generation — parallel researchers explore code while adversarial critics attack drafts",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "anti-sycophancy",
       "source": "./plugins/anti-sycophancy",
       "description": "Install the Critical Feedback Protocol into CLAUDE.md with enforcement hook",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "snapshot",
       "source": "./plugins/snapshot",
       "description": "Snapshot review — evaluate spec implementation progress",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     {
       "name": "eval-spec",
       "source": "./plugins/eval-spec",
       "description": "Evaluate spec snapshot for implementation completeness",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }

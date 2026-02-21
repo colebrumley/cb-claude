@@ -1,0 +1,5 @@
+{
+  "name": "eval-spec",
+  "description": "External evaluation spec generator — SRE-minded black-box validation specs with strong oracles and reproducible scenarios",
+  "author": { "name": "Cole" }
+}

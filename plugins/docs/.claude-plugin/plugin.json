@@ -1,0 +1,5 @@
+{
+  "name": "docs",
+  "description": "Documentation generation — parallel researchers explore existing code while adversarial critics attack drafts for accuracy and completeness",
+  "author": { "name": "Cole" }
+}

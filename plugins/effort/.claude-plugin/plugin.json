@@ -1,0 +1,5 @@
+{
+  "name": "effort",
+  "description": "Effort-scaled parallel implementation — multi-perspective workers, adversarial review, and synthesis",
+  "author": { "name": "Cole" }
+}

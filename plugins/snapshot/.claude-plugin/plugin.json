@@ -1,0 +1,5 @@
+{
+  "name": "snapshot",
+  "description": "Automatic git snapshots on each user message, GitUp auto-launch on first edit, and rewind to undo Claude's last turn",
+  "author": { "name": "Cole" }
+}

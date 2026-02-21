@@ -1,0 +1,5 @@
+{
+  "name": "anti-sycophancy",
+  "description": "Install the Critical Feedback Protocol into CLAUDE.md with enforcement hook",
+  "author": { "name": "Cole" }
+}

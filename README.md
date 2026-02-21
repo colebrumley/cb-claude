@@ -18,6 +18,7 @@ A Claude Code plugin marketplace by Cole.
 | [code-review](plugins/code-review) | Multi-perspective code review — parallel adversarial critics with severity-calibrated findings | `/plugin install code-review@cb-claude` |
 | [test](plugins/test) | Multi-perspective test generation — parallel categorized writers with synthesis and verification against existing code | `/plugin install test@cb-claude` |
 | [critique](plugins/critique) | Adversarial code red-teaming — parallel attackers probe existing code from security, correctness, resilience, performance, maintainability, and architecture perspectives | `/plugin install critique@cb-claude` |
+| [docs](plugins/docs) | Documentation generation — parallel researchers explore existing code while adversarial critics attack drafts for accuracy, completeness, clarity, usability, and maintainability | `/plugin install docs@cb-claude` |
 
 ## Adding a new plugin
 

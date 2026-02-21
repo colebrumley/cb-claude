@@ -42,6 +42,12 @@
       "source": "./plugins/critique",
       "description": "Adversarial code red-teaming — parallel attackers probe existing code from security, correctness, resilience, performance, maintainability, architecture, and data-integrity perspectives",
       "version": "1.0.0"
+    },
+    {
+      "name": "docs",
+      "source": "./plugins/docs",
+      "description": "Documentation generation — parallel researchers explore existing code while adversarial critics attack drafts for accuracy, completeness, clarity, usability, and maintainability",
+      "version": "1.0.0"
     }
   ]
 }

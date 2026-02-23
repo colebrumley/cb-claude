@@ -13,7 +13,7 @@ Add the marketplace, then install individual plugins:
 Install all plugins:
 
 ```
-/plugin install effort spec code-review test critique docs anti-sycophancy snapshot eval-spec
+/plugin install effort spec code-review test critique docs anti-sycophancy eval-spec
 ```
 
 Or install only what you need:
@@ -106,13 +106,3 @@ Installs the Critical Feedback Protocol into CLAUDE.md with an enforcement hook.
 /anti-sycophancy check
 /anti-sycophancy remove
 ```
-
-### snapshot
-
-Snapshot review and rewind — reset working tree to Claude's last checkpoint.
-
-```
-/rewind
-```
-
-Skill: `snapshot-review` (proactive)

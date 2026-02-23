@@ -49,13 +49,7 @@
       "description": "Install the Critical Feedback Protocol into CLAUDE.md with enforcement hook",
       "version": "1.0.1"
     },
-    {
-      "name": "snapshot",
-      "source": "./plugins/snapshot",
-      "description": "Snapshot review — evaluate spec implementation progress",
-      "version": "1.0.1"
-    },
-    {
+{
       "name": "eval-spec",
       "source": "./plugins/eval-spec",
       "description": "Evaluate spec snapshot for implementation completeness",

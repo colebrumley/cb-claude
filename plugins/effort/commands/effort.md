@@ -1,10 +1,10 @@
 ---
 name: effort
-description: "Effort-scaled parallel implementation — throw money at a problem. Auto-detects effort level or override with /effort <1|2|3> <task>"
+description: "Effort-scaled parallel implementation — throw money at a problem. Auto-detects effort level or override with /effort <0|1|2|3> <task>"
 user_invocable: true
 arguments:
   - name: args
-    description: "Optional effort level (1/2/3) followed by task description"
+    description: "Optional effort level (0/1/2/3) followed by task description"
     required: true
 ---
 # Effort-Scaled Parallel Implementation
@@ -15,9 +15,9 @@ Extract from `$ARGUMENTS` in order:
 1. **Inline flags** (optional, order-independent, consumed before task text):
    - `--model <opus|sonnet|haiku|inherited>` — pre-sets AGENT_MODEL
    - `--instructions "<text>"` or `--instructions none` — pre-sets USER_INSTRUCTIONS (`none` maps to `null`)
-   - `--level <1|2|3|auto>` — pre-sets effort level (alternative to bare number)
+   - `--level <0|1|2|3|auto>` — pre-sets effort level (alternative to bare number)
    - `--permissions <approve|skip>` — pre-sets command pre-approval (`approve` writes detected commands to settings, `skip` does nothing)
-2. **Bare level** `1|2|3` (optional, legacy syntax, same as `--level`)
+2. **Bare level** `0|1|2|3` (optional, legacy syntax, same as `--level`)
 3. **Remaining text** = task description
 
 Flag parsing rules:
@@ -51,13 +51,14 @@ Flag parsing rules:
    - "Minimal changes" — make the smallest possible diff to achieve the goal
    The user can also provide free-text via the "Other" option.
 
-**Ask only if level was NOT specified in arguments (neither `--level` nor bare `1|2|3`):**
+**Ask only if level was NOT specified in arguments (neither `--level` nor bare `0|1|2|3`):**
 
 3. **Effort Level** (header: "Effort"): "What effort level?"
    - "Auto-detect (Recommended)" — orchestrator classifies based on task characteristics
+   - "L0 — Quick" — 1 worker, rubric-scored, research-informed single-shot
    - "L1 — Try harder" — 3 workers, single round, lightweight review
-   - "L2 — High effort" — 5 workers, adversarial review, one retry
-   - "L3 — Ludicrous mode" — 7 workers, two rounds, full pipeline
+   - "L2 — High effort" — 5 workers, adversarial review, 85+ rubric gate
+   - "L3 — Ludicrous mode" — 7 workers, two rounds, 90+ rubric gate
 
 **Store configuration:**
 - `AGENT_MODEL`: `opus`|`sonnet`|`haiku`|`null`. Set to the chosen model string, or `null` if "Inherited".
@@ -66,6 +67,7 @@ Flag parsing rules:
 
 ### Auto-Detect Effort Level
 If level still unset after Configure Run:
+- **L0**: clear/straightforward, single-file or well-scoped, low ambiguity
 - **L1**: bounded/moderate ambiguity
 - **L2**: broad/cross-cutting/high ambiguity or importance
 - **L3**: architectural/high-stakes/novel/complex
@@ -141,7 +143,7 @@ Create `${EFFORT_DIR}/run.json`:
 {
   "effort_id": "<EFFORT_ID>",
   "task": "<task description>",
-  "level": 1,
+  "level": "<0|1|2|3>",
   "agent_model": "<opus|sonnet|haiku|null>",
   "user_instructions": "<string or null>",
   "base_branch": "<CURRENT_BRANCH>",
@@ -169,10 +171,12 @@ Single commit per worker: `effort(${EFFORT_ID}): <worker-name> implementation of
 ---
 ## Scoring Rubric (Used by All Reviewers)
 Use `effort-reviewer` rubric (Correctness, Quality, Codebase Fit, Completeness, Elegance; 100 total).
-Thresholds:
-- `>=80`: strong pass
-- `60-79`: conditional advance
-- `<60`: eliminate
+Thresholds (higher effort = stricter gate):
+- `>=70`: strong pass (L0)
+- `>=80`: strong pass (L1)
+- `>=85`: strong pass (L2)
+- `>=90`: strong pass (L3 — with 7 workers and 2 rounds, demand near-full rubric compliance)
+- `<60`: eliminate at any level
 - critical review finding: must fix before final acceptance
 ---
 ## Context Flow
@@ -199,7 +203,7 @@ Check preconditions before each phase; if unmet, run fallback.
 |-------|-------------|----------|
 | Phase 3 | At least 1 research report received | Proceed with available context; log missing inputs |
 | Phase 4 | At least 1 worker produced a non-empty diff | Abort with message to user |
-| Phase 5 | At least 1 worker has been scored | Use unscored diffs; pick by orchestrator judgment |
+| Phase 5 | At least 1 worker has been scored (L0: skip phase entirely) | Use unscored diffs; pick by orchestrator judgment |
 | Phase 6 | At least 2 solutions from Phase 5 with score >= 60 | Use whatever solutions exist |
 | Phase 9 | A winning solution has been selected | Skip adversarial; proceed to verification |
 | Phase 10 | A winning branch exists | Abort with cleanup |
@@ -210,12 +214,14 @@ Check preconditions before each phase; if unmet, run fallback.
 Spawn teammates for all independent work.
 ### Research
 Launch `effort-researcher` by level:
+- L0: 1 general
 - L1: 1 general
 - L2: 2 (`architecture`, `similar-features`)
 - L3: 3 (`architecture`, `similar-features`, `security+edge-cases`)
 Save full reports to artifacts; create <=1500-word merged summary.
 ### Test Generation
 Launch `effort-worker` in WRITE TESTS mode:
+- L0: 1 writer
 - L1: 1 writer
 - L2: 1 comprehensive writer
 - L3: 3 focused writers (`core`, `edge`, `integration-security`) in isolated worktrees, then 1 synthesizer
@@ -234,11 +240,14 @@ git add <test file paths from test writer reports>
 git commit -m "effort(${EFFORT_ID}): generated test suite for: <short task summary>"; TEST_COMMIT="$(git rev-parse HEAD)"
 git checkout "${CURRENT_BRANCH}"
 ```
-Create worker worktrees from `TEST_COMMIT` (count by level: L1=3, L2=5, L3=7):
+Create worker worktrees from `TEST_COMMIT` (count by level: L0=1, L1=3, L2=5, L3=7):
 ```bash
+# L0: convention only (no synthesizer worktree needed)
+# L1+: extend list by level
 for WORKER in minimalist architect convention; do  # extend list by level
   git worktree add -b "effort/${EFFORT_ID}/${WORKER}" "${EFFORT_DIR}/${WORKER}" "${TEST_COMMIT}"
 done
+# L1+: create synthesizer worktree
 git worktree add -b "effort/${EFFORT_ID}/synthesizer" "${EFFORT_DIR}/synthesizer" "${TEST_COMMIT}"
 ```
 Update `run.json` worktree map.
@@ -254,7 +263,7 @@ Update `run.json` worktree map.
 | 5 | performance | "What is the fastest correct solution?" |
 | 6 | security | "How would an attacker exploit this?" |
 | 7 | testability | "How do we make this trivial to verify?" |
-Assign L1 first 3, L2 first 5, L3 all 7.
+Assign L0 `convention` only, L1 first 3, L2 first 5, L3 all 7.
 ### Launch Workers
 Spawn all workers as teammates (Task tool with `team_name: "effort-${EFFORT_ID}"`):
 ```
@@ -279,11 +288,14 @@ Wait for completion.
 ### Gather Diffs
 ```bash
 cd "${EFFORT_DIR}/${WORKER}"
-BASE_SHA="$(git merge-base HEAD effort/${EFFORT_ID}/synthesizer)"
+# L0: use effort/${EFFORT_ID}/base (no synthesizer branch exists)
+# L1+: use effort/${EFFORT_ID}/synthesizer
+BASE_SHA="$(git merge-base HEAD effort/${EFFORT_ID}/base)"
 git diff "${BASE_SHA}..HEAD" > "${EFFORT_DIR}/artifacts/${WORKER}.patch"
 git diff --stat "${BASE_SHA}..HEAD" > "${EFFORT_DIR}/artifacts/${WORKER}.stats"
 ```
 ### Launch Reviewers
+- L0: 1 scorer (`MODE: SCORING`) — scores the single solution against the full rubric
 - L1: 1 scorer (`MODE: SCORING`)
 - L2: 2 independent scorers; average per-dimension scores
 - L3: 3 specialized scorers (`correctness-completeness`, `security-resilience`, `quality-fit-elegance`); average per-dimension scores
@@ -292,6 +304,8 @@ Require ranking and advancement recommendation.
 Store rankings/scores in `run.json`.
 ---
 ## Phase 5: Synthesis / Advancement
+### Level 0: Skip
+No synthesis — the single solution advances directly to Phase 10 (verification). Retry eligibility is evaluated in Phase 11 based on score and verification results.
 ### Level 1-2: Synthesize
 Select top solutions (L1 top 2, L2 top 3), then launch 1 `effort-worker` in SYNTHESIZE mode in `${EFFORT_DIR}/synthesizer` with task, candidate summaries (<=250 words each), reviewer feedback, and worktree paths. Require tests + commit. Re-score synthesis against top originals; keep highest scorer.
 ### Level 3: Advancement
@@ -323,7 +337,7 @@ Pass task, winner worktree, research summary.
 ---
 ## Phase 10: Verification (All Levels)
 Resolve commands from research/config and run in winner worktree. Save output to `${EFFORT_DIR}/artifacts/verification.log`.
-### Level 1
+### Level 0-1
 ```bash
 cd "${EFFORT_DIR}/<winner-worktree>"
 <test command>
@@ -344,10 +358,12 @@ cd "${EFFORT_DIR}/<winner-worktree>"
 ```
 Report pass/fail explicitly.
 ---
-## Phase 11: Present Issues & Retry (L2+, Conditional)
+## Phase 11: Present Issues & Retry (L0+, Conditional)
 ### Retry Trigger Conditions
-**L2**: retry eligible if any true: score <80, adversarial critical issue, verification failure.
-**L3**: retry eligible if any true: score <85, adversarial critical/moderate issue, verification failure.
+**L0**: retry eligible if any true: score <70, verification failure.
+**L1**: retry eligible if any true: score <80, verification failure.
+**L2**: retry eligible if any true: score <85, adversarial critical issue, verification failure.
+**L3**: retry eligible if any true: score <90, adversarial critical/moderate issue, verification failure.
 
 If no retry conditions are met, skip to Phase 12 (L3) or Phase 13.
 
@@ -355,7 +371,7 @@ If no retry conditions are met, skip to Phase 12 (L3) or Phase 13.
 If retry conditions are met, present the issues before retrying:
 ```
 ### Issues Requiring Attention
-**Score**: X/100 (threshold: <80|85>)
+**Score**: X/100 (threshold: <70|80|85|90>)
 
 **Adversarial Findings** (if any):
 - <bulleted list of critical/major issues from Phase 9>
@@ -414,7 +430,7 @@ git diff "${BASE_SHA}..HEAD"
 ```
 ### Ask the User
 1. Apply this solution
-2. View alternative solutions
+2. View alternative solutions (L1+ only — L0 has a single solution)
 3. Modify before applying
 4. Abort and clean up
 ---
@@ -459,7 +475,7 @@ Because tests are committed on `effort/${EFFORT_ID}/base`, no reset is needed on
 ### Minimum Success Thresholds
 - Research: >=1 success; else continue without briefing (reduced confidence).
 - Test generation: >=1 success; else continue with explicit `no-new-tests` flag.
-- Implementation: >=2 successes for L2/L3 (>=1 for L1); else abort.
+- Implementation: >=2 successes for L2/L3 (>=1 for L0/L1); else abort.
 - Review: >=1 success; else skip scoring and use orchestrator judgment.
 ### Worktree Creation Failure
 1. Retry `git worktree add` with alternate path.

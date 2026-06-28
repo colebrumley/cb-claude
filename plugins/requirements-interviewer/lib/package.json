@@ -1,0 +1,20 @@
+{
+  "name": "requirements-interviewer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic-first requirements interviewer harness for AI-assisted development.",
+  "bin": {
+    "req": "./src/cli.ts"
+  },
+  "scripts": {
+    "req": "tsx src/cli.ts",
+    "test": "tsx test/run.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
+  }
+}

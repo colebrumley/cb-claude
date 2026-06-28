@@ -18,6 +18,12 @@
       "source": "./plugins/anti-sycophancy",
       "description": "Install the Critical Feedback Protocol into CLAUDE.md with enforcement hook",
       "version": "1.0.1"
+    },
+    {
+      "name": "requirements-interviewer",
+      "source": "./plugins/requirements-interviewer",
+      "description": "Deterministic-first requirements interviewer — a skeptical analyst clarifies a feature before implementation, while a dependency-free TypeScript CLI validates, persists, and renders the requirements package handed to builder agents",
+      "version": "1.0.0"
     }
   ]
 }

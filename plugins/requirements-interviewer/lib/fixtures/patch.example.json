@@ -1,0 +1,7 @@
+{ "set": { "problemStatement": "Analysts copy tables by hand." },
+  "upsert": {
+    "goals": [{ "text": "One-click CSV export." }],
+    "nonGoals": [{ "text": "xlsx export." }],
+    "openQuestions": [{ "question": "Encoding?", "category": "format", "whyItMatters": "Corrupts non-ASCII.", "blocking": "blocking", "status": "open" }],
+    "acceptanceCriteria": [{ "criterion": "Click exports CSV.", "linkedGoal": "g-1", "testability": "testable", "priority": "must" }]
+  } }

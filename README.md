@@ -45,3 +45,14 @@ Installs the Critical Feedback Protocol into CLAUDE.md with an enforcement hook.
 /anti-sycophancy check
 /anti-sycophancy remove
 ```
+
+### requirements-interviewer
+
+A deterministic-first requirements interview before you build. A skeptical analyst (the LLM) clarifies a vague feature into structured state; a dependency-free TypeScript CLI validates completeness, persists the decision log, and renders a builder handoff that downstream agents can't lose or reinterpret after compaction.
+
+```
+/requirements Add CSV export to the reports page
+/requirements Multi-region failover --tier epic
+```
+
+Skill: `requirements-interviewer` | CLI: `plugins/requirements-interviewer/lib` (`init`, `validate`, `gaps`, `apply`, `render-spec`, `render-handoff`)

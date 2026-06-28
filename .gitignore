@@ -1,3 +1,5 @@
 .worktrees/
 bench/results/
 .specs/
+node_modules/
+package-lock.json

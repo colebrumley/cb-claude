@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "featureName": "CSV export for reports",
+  "problemStatement": "Analysts manually copy report tables into spreadsheets; this is slow and error-prone. They need a one-click CSV export.",
+  "tier": "medium",
+  "goals": [
+    {
+      "id": "g-1",
+      "text": "Let analysts export any report table to CSV in one click."
+    },
+    {
+      "id": "g-2",
+      "text": "Exported CSV matches what is shown on screen (same filters/sort)."
+    }
+  ],
+  "nonGoals": [
+    {
+      "id": "ng-1",
+      "text": "Excel/.xlsx export."
+    },
+    {
+      "id": "ng-2",
+      "text": "Scheduled or emailed exports."
+    }
+  ],
+  "actors": [
+    {
+      "id": "act-1",
+      "name": "Analyst",
+      "description": "Internal user viewing reports."
+    }
+  ],
+  "userJourneys": [
+    {
+      "id": "uj-1",
+      "name": "Export current report",
+      "actor": "act-1",
+      "steps": [
+        "Analyst opens a report and applies filters/sort.",
+        "Analyst clicks 'Export CSV'.",
+        "Browser downloads a CSV reflecting the current view."
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "fr-1",
+      "text": "Provide an 'Export CSV' action on every report table.",
+      "priority": "must"
+    },
+    {
+      "id": "fr-2",
+      "text": "CSV reflects active filters and sort order.",
+      "priority": "must"
+    },
+    {
+      "id": "fr-3",
+      "text": "Cap export at 100k rows; warn beyond that.",
+      "priority": "should",
+      "rationale": "Keeps export within the 30s timeout."
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "nfr-1",
+      "text": "Export of 100k rows completes within 30s.",
+      "priority": "must"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "con-1",
+      "text": "Must run within existing request timeout (30s).",
+      "kind": "technical"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "asm-1",
+      "text": "Reports already expose a server-side query we can stream.",
+      "status": "confirmed",
+      "rationale": "Confirmed with backend team."
+    }
+  ],
+  "risks": [
+    {
+      "id": "risk-1",
+      "text": "Large exports could exhaust memory.",
+      "likelihood": "medium",
+      "impact": "high",
+      "mitigation": "Stream rows; enforce 100k cap.",
+      "status": "mitigated"
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "q-1",
+      "question": "What encoding/delimiter — UTF-8 + comma, or locale-aware?",
+      "category": "format",
+      "whyItMatters": "Wrong encoding corrupts non-ASCII data for some users.",
+      "blocking": "blocking",
+      "possibleDefault": "UTF-8 with BOM, comma",
+      "status": "answered",
+      "linked": "dec-2"
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "ac-1",
+      "criterion": "Clicking Export CSV downloads a file reflecting current filters.",
+      "linkedRequirement": "fr-2",
+      "testability": "testable",
+      "priority": "must"
+    },
+    {
+      "id": "ac-2",
+      "criterion": "Exporting 100k rows finishes under 30s.",
+      "linkedRequirement": "nfr-1",
+      "testability": "testable",
+      "priority": "must"
+    },
+    {
+      "id": "ac-3",
+      "criterion": "Beyond 100k rows the user sees a clear warning.",
+      "linkedRequirement": "fr-3",
+      "testability": "testable",
+      "priority": "should"
+    }
+  ],
+  "outOfScope": [],
+  "dependencies": [],
+  "rollout": {
+    "applicable": true,
+    "notes": [],
+    "phases": []
+  },
+  "observability": {
+    "applicable": true,
+    "notes": []
+  },
+  "security": {
+    "applicable": true,
+    "notes": []
+  },
+  "operational": {
+    "applicable": true,
+    "notes": []
+  },
+  "riskReviews": [
+    {
+      "reviewedAt": "2026-06-28T15:30:13.282Z",
+      "reviewer": "user",
+      "summary": "Reviewed memory/timeout risks; mitigations accepted."
+    }
+  ],
+  "handoffNotes": [],
+  "meta": {
+    "createdAt": "2026-06-28T15:30:13.280Z",
+    "updatedAt": "2026-06-28T15:30:13.282Z",
+    "decisionSequence": 2
+  }
+}

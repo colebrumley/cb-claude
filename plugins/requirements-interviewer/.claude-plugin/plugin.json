@@ -1,0 +1,5 @@
+{
+  "name": "requirements-interviewer",
+  "description": "Deterministic-first requirements interviewer — a skeptical analyst clarifies a feature before implementation, while a dependency-free TypeScript CLI validates, persists, and renders the requirements package handed to builder agents",
+  "author": { "name": "Cole" }
+}

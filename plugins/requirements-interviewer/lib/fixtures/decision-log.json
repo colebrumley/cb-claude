@@ -1,0 +1,37 @@
+{
+  "decisions": [
+    {
+      "id": "dec-1",
+      "decision": "Stream the export server-side rather than building it in-browser.",
+      "status": "confirmed",
+      "rationale": "In-browser export can't handle 100k rows within memory/time limits.",
+      "alternatives": [
+        "Client-side CSV generation from loaded data"
+      ],
+      "source": "interviewer",
+      "confidence": "high",
+      "relatedRequirements": [
+        "fr-1",
+        "nfr-1"
+      ],
+      "sequence": 1,
+      "timestamp": "2026-06-28T15:30:13.282Z"
+    },
+    {
+      "id": "dec-2",
+      "decision": "Use UTF-8 with BOM and comma delimiter.",
+      "status": "confirmed",
+      "rationale": "Opens cleanly in Excel for the analyst's locale; matches existing report encoding.",
+      "alternatives": [
+        "Locale-aware delimiter detection"
+      ],
+      "source": "user",
+      "confidence": "high",
+      "relatedRequirements": [
+        "fr-2"
+      ],
+      "sequence": 2,
+      "timestamp": "2026-06-28T15:30:13.282Z"
+    }
+  ]
+}

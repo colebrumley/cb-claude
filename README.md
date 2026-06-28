@@ -1,6 +1,6 @@
 # cb-claude
 
-A suite of Claude Code plugins by Cole.
+A small suite of Claude Code plugins by Cole.
 
 ## Install
 
@@ -13,89 +13,28 @@ Add the marketplace, then install individual plugins:
 Install all plugins:
 
 ```
-/plugin install effort spec code-review test critique docs anti-sycophancy eval-spec
+/plugin install critique anti-sycophancy
 ```
 
 Or install only what you need:
 
 ```
-/plugin install effort
-/plugin install spec
-/plugin install code-review
+/plugin install critique
 ```
 
 ## Plugins
 
-### effort
-
-Effort-scaled parallel implementation — throw compute at a problem with multi-agent workers, adversarial review, and synthesis.
-
-```
-/effort <task>
-/effort 3 <task>   # override effort level (1-3)
-```
-
-Agents: `effort-researcher`, `effort-worker`, `effort-reviewer`
-
-### spec
-
-Technical spec writing — iterative questioning, rubric-gated completeness, and parallel adversarial critique.
-
-```
-/spec <description>
-```
-
-Agents: `spec-drafter`, `spec-critic` | Skill: `writing-specs` (proactive)
-
-### code-review
-
-Multi-perspective code review — parallel adversarial critics with severity-calibrated findings.
-
-```
-/review [PR number|URL|branch-range]
-```
-
-Agents: `review-researcher`, `review-critic` | Skill: `reviewing-code` (proactive)
-
-### test
-
-Multi-perspective test generation — parallel writers produce categorized tests for existing code.
-
-```
-/test <target>
-```
-
-Agents: `test-researcher`, `test-writer` | Skill: `writing-tests` (proactive)
-
 ### critique
 
-Adversarial code red-teaming — parallel attackers probe existing code for vulnerabilities, bugs, fragility, and design problems.
+Adversarial red-teaming — parallel attackers probe any target (code, specs, plans, documents) for vulnerabilities, bugs, fragility, and design problems. Critical and high findings are independently verified before they drive the risk assessment.
 
 ```
 /critique <target>
+/critique --depth deep src/auth/
+/critique docs/design/new-billing.md   # specs and plans too
 ```
 
-Agents: `critique-researcher`, `critique-attacker` | Skill: `critiquing-code` (proactive)
-
-### docs
-
-Documentation generation — parallel researchers explore code while adversarial critics attack drafts for accuracy and completeness.
-
-```
-/docs <target>
-```
-
-Agents: `docs-researcher`, `docs-writer`, `docs-critic` | Skill: `writing-docs` (proactive)
-
-### eval-spec
-
-External evaluation spec generator — SRE-minded black-box validation specs with strong oracles and reproducible scenarios.
-
-```
-/eval-spec <system or change description>
-```
-
-Agents: `eval-spec-researcher`, `eval-spec-generator`, `eval-spec-critic`
+Agents: `critique-researcher`, `critique-attacker`, `critique-verifier` | Skill: `critiquing-code` (proactive)
 
 ### anti-sycophancy
 

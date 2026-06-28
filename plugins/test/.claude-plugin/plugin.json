@@ -1,5 +1,0 @@
-{
-  "name": "test",
-  "description": "Multi-perspective test generation — parallel writers produce categorized tests for existing code",
-  "author": { "name": "Cole" }
-}

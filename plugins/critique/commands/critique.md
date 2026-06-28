@@ -1,14 +1,14 @@
 ---
 name: critique
-description: "Adversarial code red-teaming — parallel attackers probe existing code for vulnerabilities, bugs, fragility, and design problems. Usage: /critique [--model <model>] [--depth <depth>] [--instructions <text>] <target>"
+description: "Adversarial red-teaming — parallel attackers probe any target (code, specs, plans, documents) for vulnerabilities, bugs, fragility, and design problems, with critical/high findings independently verified. Usage: /critique [--model <model>] [--depth <depth>] [--instructions <text>] <target>"
 user_invocable: true
 arguments:
   - name: args
     description: "Optional flags and target (file path, file:function, directory, or description)"
     required: true
 ---
-# Code Critique
-Orchestrate parallel adversarial red-teaming of existing code in fixed phases.
+# Critique
+Orchestrate parallel adversarial red-teaming of any target in fixed phases. Targets are classified as either **code** (source files, config) or **spec** (all non-code: documents, specs, plans, READMEs, etc.). Critical/high findings are independently verified before they drive the risk assessment.
 ## Phase 1: Parse & Configure
 ### Parse Arguments
 Extract from `$ARGUMENTS` in order:
@@ -26,32 +26,40 @@ Flag parsing rules:
 
 ### Classify Target
 Classify the remaining text as the critique target:
-1. **File**: path exists as a file (e.g. `src/utils/parser.ts`)
+1. **File**: path exists as a file (e.g. `src/utils/parser.ts`, `docs/design.md`)
 2. **Function**: contains `:` after a valid file path (e.g. `src/utils/parser.ts:parseConfig`)
-3. **Directory**: path exists as a directory (e.g. `src/utils/`)
+3. **Directory**: path exists as a directory (e.g. `src/utils/`, `docs/specs/`)
 4. **Description**: anything else (e.g. `"our authentication architecture"`)
 
 Validate:
 - File mode: verify file exists. If not, report error and STOP.
 - Function mode: verify file exists. Function name is extracted but not validated here (attackers will verify).
 - Directory mode: verify directory exists. If not, report error and STOP.
-- Description mode: no validation needed — researchers will resolve to code in Phase 2.
+- Description mode: no validation needed — researchers will resolve in Phase 2.
+
+### Detect Target Type
+After resolving the target file(s), classify the content into one of two types:
+
+- **Code**: source files (`.ts`, `.py`, `.go`, `.cs`, `.java`, `.rs`, `.sh`, `.js`, `.rb`, `.scala`, `.kt`, etc.) and structured config/data files (`.yaml`, `.yml`, `.json`, `.toml`, `.xml`, `.html`)
+- **Spec**: all non-code files — specifications, plans, documents, READMEs, ADRs, runbooks, or any other narrative/text artifact (`.md`, `.txt`, `.adoc`, `.rst`, `.pdf`, etc.)
+
+Set `TARGET_TYPE` to `code` or `spec`. For mixed directories, use whichever dominates. This determines which attacker perspectives to use. (In description mode, `TARGET_TYPE` is finalized after the researcher resolves files in Phase 2.)
 
 ### Configure Run
 **If ALL configuration values are determined from parsed arguments** (model is set, depth is set, and instructions is set or "none"):
 - Set `AGENT_MODEL` from `--model` value (`inherited` maps to `null`)
 - Set `DEPTH` from `--depth` value
 - Set `USER_INSTRUCTIONS` from `--instructions` value (`none` maps to `null`)
-- **Skip `AskUserQuestion` entirely** — proceed directly to Initialize Working Directory
+- **Skip `AskUserQuestion` entirely** — proceed directly to Phase 2
 
 **Otherwise**, use `AskUserQuestion` to ask ONLY for values not yet determined from arguments. Ask all remaining questions in a **single call**.
 
 **Ask only if depth was NOT set from arguments:**
 
 1. **Depth** (header: "Depth"): "How thorough should the critique be?"
-   - "Standard (Recommended)" — 1 researcher, 5 attackers (security, correctness, resilience, performance, maintainability)
-   - "Quick" — no researchers, 3 attackers (security, correctness, resilience)
-   - "Deep" — 2 researchers, 7 attackers (all perspectives including architecture, data-integrity)
+   - "Standard (Recommended)" — 1 researcher, 5 attackers
+   - "Quick" — no researcher, 3 attackers
+   - "Deep" — 2 researchers, 7 attackers (code) / 5 attackers (spec), all perspectives
 
 **Ask only if model was NOT set from arguments:**
 
@@ -73,14 +81,16 @@ Validate:
 ### Store Configuration
 - `TARGET`: the classified target string
 - `TARGET_MODE`: `file|function|directory|description`
+- `TARGET_TYPE`: `code|spec`
 - `FUNCTION_NAME`: extracted function name (function mode only) or `null`
 - `DEPTH`: `quick|standard|deep`
 - `RESEARCHER_COUNT`: quick=0, standard=1, deep=2
-- `ATTACKER_COUNT`: quick=3, standard=5, deep=7
-- `AGENT_MODEL`: `opus|sonnet|haiku|null`. Set to the chosen model string, or `null` if "Inherited".
+- `ATTACKER_COUNT`: see the perspective tables below
+- `AGENT_MODEL`: `opus|sonnet|haiku|null`. Set to the chosen model string, or `null` if "Inherited" / no flag.
 - `USER_INSTRUCTIONS`: free-text string or `null`.
 
-### Attacker Perspectives by Depth
+### Select Attacker Perspectives
+**For code targets** (`TARGET_TYPE = code`):
 | Perspective | Quick | Standard | Deep |
 |-------------|-------|----------|------|
 | security | Y | Y | Y |
@@ -91,195 +101,177 @@ Validate:
 | architecture | - | - | Y |
 | data-integrity | - | - | Y |
 
+**For spec targets** (`TARGET_TYPE = spec`):
+| Perspective | Quick | Standard | Deep |
+|-------------|-------|----------|------|
+| determinism | Y | Y | Y |
+| completeness | Y | Y | Y |
+| verifiability | Y | Y | Y |
+| context-efficiency | - | Y | Y |
+| anti-hallucination | - | Y | Y |
+
+Only five spec perspectives exist, so spec attacker count tops out at 5. Deep depth on a spec target therefore adds the second researcher (dependencies focus) rather than additional attackers.
+
 ### Researcher Focus by Depth
 | Focus | Quick | Standard | Deep |
 |-------|-------|----------|------|
 | context | - | Y | Y |
 | dependencies | - | - | Y |
 
-### Initialize Working Directory
-```bash
-if git rev-parse --is-inside-work-tree 2>/dev/null; then
-  REPO_ROOT="$(git rev-parse --show-toplevel)"
-  CRITIQUE_ID="$(date +%Y%m%d-%H%M%S)-$$"
-  CRITIQUE_DIR="${REPO_ROOT}/.critiques/critique-${CRITIQUE_ID}"
-  grep -qxF '.critiques/' "${REPO_ROOT}/.gitignore" 2>/dev/null || echo '.critiques/' >> "${REPO_ROOT}/.gitignore"
-else
-  echo "ERROR: Not in a git repository. Critique requires a git repo."
-  # STOP — cannot proceed without git
-fi
-mkdir -p "${CRITIQUE_DIR}/artifacts"
-```
-
-### Initialize State Tracking
-Create `${CRITIQUE_DIR}/run.json`:
-```json
-{
-  "critique_id": "<CRITIQUE_ID>",
-  "target": "<TARGET>",
-  "target_mode": "<file|function|directory|description>",
-  "function_name": "<string or null>",
-  "depth": "<quick|standard|deep>",
-  "researcher_count": 0,
-  "attacker_count": 3,
-  "agent_model": "<opus|sonnet|haiku|null>",
-  "user_instructions": "<string or null>",
-  "status": "configuring"
-}
-```
-Update `run.json` after every phase.
-
-### Create Team
-Use `TeamCreate` with `team_name: "critique-${CRITIQUE_ID}"`. All agents are spawned as **teammates** using the Task tool with the `team_name` parameter. **Never use `run_in_background`** — always spawn teammates.
-
 ### Announce the Plan
-Report: target, target mode, depth, expected researcher count, expected attacker count, attacker perspectives, and the phase sequence.
+Report: target, target mode, target type (code/spec), depth, researcher count, attacker count, attacker perspectives, and the phase sequence (including verification of critical/high findings in Phase 5).
 ---
-## Phase 2: Resolve Target
-### For File Mode
-Read the target file. Save to `${CRITIQUE_DIR}/artifacts/target-code.md`:
-```markdown
-## Target Code
-### <file path>
-\`\`\`<language>
-<file contents>
-\`\`\`
-```
-Extract: file path, line count, language.
+## Phase 2: Resolve Target & Research
+This phase resolves the target file list and, for standard+ depth, runs context research. State is held **in memory** — no working directory, no artifact files.
 
-### For Function Mode
-Read the target file. Extract the specified function (search for the function definition). Save to `${CRITIQUE_DIR}/artifacts/target-code.md`:
-```markdown
-## Target Code
-### <file path>:<function name>
-\`\`\`<language>
-<function code>
-\`\`\`
-### Full File Context
-\`\`\`<language>
-<full file contents>
-\`\`\`
-```
+### Resolve Target Files
+Determine the list of target file paths (`TARGET_FILES`) based on mode:
+
+#### For File Mode
+Read the target file. Record the file path, line count, and language/format.
+`TARGET_FILES` = the single file path.
+
+#### For Function Mode
+Read the target file. Verify the function exists (search for the definition). Record the file path, function boundaries, and language.
+`TARGET_FILES` = the single file path.
 If the function is not found in the file, report error and STOP.
 
-### For Directory Mode
-List all source files in the directory (exclude tests, node_modules, build artifacts). Read each file. Save to `${CRITIQUE_DIR}/artifacts/target-code.md`:
-```markdown
-## Target Code
-### <file path 1>
-\`\`\`<language>
-<file contents>
-\`\`\`
-### <file path 2>
-\`\`\`<language>
-<file contents>
-\`\`\`
-...
-```
-If the directory contains more than 20 source files, select the most important ones (entry points, main modules) and note which files were excluded.
+#### For Directory Mode
+List all relevant files in the directory (for code: exclude tests, node_modules, build artifacts; for specs: include all non-binary files). Read each file.
+`TARGET_FILES` = the list of file paths.
+If the directory contains more than 20 files, select the most important ones (entry points, main modules, primary documents) and note which files were excluded.
 
-### For Description Mode
-Spawn 1 researcher (critique-researcher, focus: context) to explore the codebase and identify relevant files matching the description:
+#### For Description Mode
+Spawn 1 researcher (`critique-researcher`, focus: context) using the Task tool with `Agent: critique-researcher` to identify relevant files matching the description:
+
 ```
 Task: "You are a critique researcher with focus: context.
 ## Description
 The user wants to critique: <DESCRIPTION>
 ## Instructions
-Search the codebase to identify the files most relevant to this description. Read them and produce a briefing that includes the file paths and key code. Your output will be used to identify the target code for adversarial critique.
-<USER_INSTRUCTIONS or 'None'>"
-Agent: critique-researcher
+<USER_INSTRUCTIONS or 'None'>
+
+Search the codebase to identify the files most relevant to this description. Read the identified files and produce a briefing that includes the file paths, key content, and contextual background. Your output will be used to identify the target for adversarial critique."
 ```
 If `AGENT_MODEL` is set, pass it as `model`.
 
-Wait for the researcher. Extract the identified file paths. Read those files and save to `${CRITIQUE_DIR}/artifacts/target-code.md` in the same format as directory mode.
+Wait for the researcher. Extract the identified file paths as `TARGET_FILES` and read those files. Finalize `TARGET_TYPE` from the resolved files.
+The researcher's output serves as **both** the target resolution and the research briefing — skip the separate research launch below.
 
-If the researcher finds no relevant code, report: "Could not identify code matching the description: <DESCRIPTION>" and STOP (run cleanup).
+If the researcher finds no relevant files, report: "Could not identify content matching the description: <DESCRIPTION>" and STOP.
 
-### Save File List
-Save the resolved file list to `${CRITIQUE_DIR}/artifacts/target-files.txt` (one file path per line).
+### Launch Research (standard+ depth, non-description modes only)
+**Precondition**: `DEPTH` is `standard` or `deep`. Skip research entirely for `quick`.
 
-### Report
-Report to the user:
-```
-Target: <file/function/directory/description>
-Files: <count> (<total line count> lines)
-Languages: <list>
-```
----
-## Phase 3: Research (standard+ only)
-**Precondition**: `DEPTH` is `standard` or `deep`. Skip this phase entirely for `quick`.
-
-### Launch Researchers
-Spawn researchers as teammates based on depth:
+For file, function, and directory modes, spawn researchers **as soon as `TARGET_FILES` is known** using the Task tool with `Agent: critique-researcher`. Run multiple researchers in parallel (multiple Task calls in one message).
 
 **Standard** — 1 researcher (`context`):
 ```
 Task: "You are a critique researcher with focus: context.
 ## Target Files
-<list of file paths from target-files.txt>
+<list of file paths from TARGET_FILES>
+## Target Type
+<code|spec>
 ## Instructions
 <USER_INSTRUCTIONS or 'None'>
 
-Explore the callers, test coverage, recent change history, and conventions around these target files. Your briefing will be given to adversarial attackers to help them assess real-world risk."
-Agent: critique-researcher
+Explore the context around these target files. For code: callers, test coverage, recent change history, and conventions. For specs: related documents, prior versions, referenced systems, and stakeholder context. Your briefing will be given to adversarial attackers to help them assess real-world risk and understand the intent behind the target."
 ```
 
-**Deep** — 2 researchers (`context`, `dependencies`):
-Launch both in parallel. The `dependencies` researcher additionally maps the full dependency graph and trust boundaries.
+**Deep** — 2 researchers (`context`, `dependencies`), launched in parallel. The `dependencies` researcher additionally maps the full dependency graph and trust boundaries:
 ```
 Task: "You are a critique researcher with focus: dependencies.
 ## Target Files
-<list of file paths from target-files.txt>
+<list of file paths from TARGET_FILES>
+## Target Type
+<code|spec>
 ## Instructions
 <USER_INSTRUCTIONS or 'None'>
 
 Map the full dependency graph of these target files — what they import, what imports them, shared state, external integrations, and trust boundaries. Your briefing will be given to adversarial attackers to help them assess blast radius and data flow risks."
-Agent: critique-researcher
 ```
 
 If `AGENT_MODEL` is set (not null), pass it as the `model` parameter.
 
-### Compile Research Briefing
-Wait for all researchers to complete. Combine their outputs into a single briefing (<=1500 words) saved to `${CRITIQUE_DIR}/artifacts/research-briefing.md`.
+### Compile Results
+Wait for all researchers to complete. Combine their outputs into a single briefing (<=1500 words) and hold it in memory as `RESEARCH_BRIEFING`. Hold the resolved file list in memory as `TARGET_FILES`.
 
-If a researcher fails, continue with remaining outputs. If all fail, proceed without research (attackers will explore context themselves at reduced confidence).
+If a researcher fails, continue with remaining outputs. If all fail (or depth is `quick`), proceed without a briefing — attackers will explore context themselves at reduced confidence.
+
+### Report
+Report to the user:
+```
+Target: <file/function/directory/description>
+Type: <code|spec>
+Files: <count> (<total line count> lines)
+```
 ---
-## Phase 4: Parallel Attack
+## Phase 3: Parallel Attack
 ### Select Perspectives
-Use the Attacker Perspectives by Depth table from Phase 1 to determine which perspectives to spawn.
+Use the perspective table matching `TARGET_TYPE` and `DEPTH` from Phase 1.
 
 ### Launch Attackers
-Spawn all attackers as teammates in parallel (Task tool with `team_name`):
+Spawn all attackers in parallel using the Task tool with `Agent: critique-attacker` (multiple Task calls in one message):
+
 ```
 Task: "You are a critique attacker attacking from the <PERSPECTIVE> perspective.
 ## Target Files
-Read the target code at these paths:
-<list of file paths from target-files.txt>
+Read the target at these paths:
+<list of file paths from TARGET_FILES>
+## Target Type
+<code|spec>
 ## Research Briefing
-<compiled research briefing, or 'No research briefing available — explore context yourself'>
+<RESEARCH_BRIEFING content, or 'No research briefing available — explore context yourself'>
 ## Your Perspective
 <PERSPECTIVE>
 ## Instructions
 <USER_INSTRUCTIONS or 'None'>
 
-Read every target file in full. Attack from your perspective using all your attack vectors. Quote specific code for every finding. Check for what's NOT there — missing error handling, missing validation, missing timeouts. You MUST produce at least 2 findings."
-Agent: critique-attacker
+Read every target file in full. Attack from your perspective using all your attack vectors. Quote specific content for every finding. Check for what's NOT there — missing sections, missing handling, missing constraints. You MUST produce at least 2 findings."
 ```
 If `AGENT_MODEL` is set, pass it as `model`.
 
 Wait for all attackers to complete.
 ---
-## Phase 5: Aggregate & Present
-The orchestrator (not an agent) processes all attacker outputs. **This is the final output — make it useful.**
+## Phase 4: Verify Critical & High Findings
+Critical and high findings drive the risk assessment, so each one gets an independent check before it can. Medium and low findings flow through unverified — they are triage fodder for the reader.
 
-### Collect & Deduplicate
-1. Collect all findings from all attackers
-2. Deduplicate: merge findings that reference the same file:line with the same issue
-3. Note cross-perspective consensus: issues raised by 2+ attackers are stronger signals — mark these with the raising perspectives
-4. Group by severity: critical, high, medium, low
+### Collect & Deduplicate (preliminary)
+1. Collect all findings from all attackers.
+2. Deduplicate: merge findings that reference the same location with the same issue.
+3. Note cross-perspective consensus: issues raised by 2+ attackers are stronger signals — mark these with the raising perspectives.
+4. Group by severity: critical, high, medium, low.
+
+### Dispatch Verifiers
+**Scope**: all critical and high findings after dedup. If there are none, skip this phase entirely. If there are more than 10, verify the first 10 (criticals first, then highs, in report order) and mark the rest `verification: skipped (cap)`.
+
+Spawn one verifier per in-scope finding, all in parallel, using the Task tool with `Agent: critique-verifier`:
+
+```
+Task: "You are a critique verifier. Investigate this ONE finding and determine whether it is real by reading the actual target — do not take the attacker's reasoning at face value.
+## Finding
+<full finding text: severity, location, quoted content, impact, raising perspective(s)>
+## Target Files
+<list of file paths from TARGET_FILES>
+## Target Type
+<code|spec>"
+```
+If `AGENT_MODEL` is set, pass it as `model`.
+
+### Apply Verdicts
+After all verifiers return:
+- `confirmed` -> keep the finding; record the verifier's evidence as its verification note.
+- `uncertain` -> keep the finding; mark it `[unverified]` and record the verifier's note.
+- `false-positive` -> drop the finding from its severity group and record it (with the refuting evidence) for the "Dropped as False Positives" section. **Security clamp**: findings raised by the `security` perspective are never dropped — clamp `false-positive` to `uncertain` and keep them, marked `[unverified]` with the verifier's evidence. A wrong security drop is costlier than a noisy security finding.
+- Verifier failed or returned no parseable verdict -> keep the finding unannotated, log `verification failed` for it.
+
+A `false-positive` verdict whose evidence lacks a refuting `file:line` citation is invalid — treat it as `uncertain`.
+---
+## Phase 5: Aggregate & Present
+The orchestrator (not an agent) processes all surviving findings. **This is the final output — make it useful.**
 
 ### Compute Risk Assessment
-Based on the findings:
+Compute over findings that **survived verification** — dropped false positives do not count. Based on the surviving findings:
 - **Critical risk**: Any critical findings, or 3+ high findings
 - **High risk**: 1-2 high findings, or 5+ medium findings
 - **Moderate risk**: 1-4 medium findings, no high or critical
@@ -289,45 +281,53 @@ Based on the findings:
 Use this exact format:
 ```
 ## Critique Complete
-**Target**: <file/function/directory/description> | **Depth**: <depth> | **Attackers**: <count>
+**Target**: <file/function/directory/description> | **Type**: <code|spec> | **Depth**: <depth> | **Attackers**: <count>
+**Verification**: <N confirmed, N unverified, N dropped as false positives | n/a — no critical/high findings>
 
-### Critical Findings (exploitable/crash/data-loss)
+### Critical Findings
 1. **[CATEGORY]** `file:line` — Description
    Raised by: <perspective(s)>
    > ```
-   > <quoted code>
+   > <quoted content>
    > ```
    **Impact**: <what goes wrong>
    **Recommendation**: <specific fix>
+   **Verification**: <confirmed — evidence | [unverified] — verifier note | failed | skipped (cap)>
 
 [If no critical findings: "No critical findings."]
 
-### High Findings (likely problems)
+### High Findings
 1. **[CATEGORY]** `file:line` — Description
    Raised by: <perspective(s)>
    > ```
-   > <quoted code>
+   > <quoted content>
    > ```
    **Impact**: <what goes wrong>
    **Recommendation**: <specific fix>
+   **Verification**: <confirmed — evidence | [unverified] — verifier note | failed | skipped (cap)>
 
 [If no high findings: "No high findings."]
 
-### Medium Findings (potential problems)
+### Medium Findings
 1. **[CATEGORY]** `file:line` — Description
    Raised by: <perspective(s)>
    > ```
-   > <quoted code>
+   > <quoted content>
    > ```
    **Impact**: <what goes wrong>
    **Recommendation**: <specific fix>
 
 [If no medium findings: "No medium findings."]
 
-### Low Findings (improvements)
+### Low Findings
 1. **[CATEGORY]** `file:line` — Description — Fix: <suggestion>
 
 [If no low findings: "No low findings."]
+
+### Dropped as False Positives
+- **[CATEGORY]** `file:line` — <finding one-liner> — Refuted: <verifier's refuting evidence>
+
+[Omit this section if nothing was dropped.]
 
 ### What's Solid
 - <specific positive citing file:line — not generic praise>
@@ -345,65 +345,45 @@ Use this exact format:
 - 1-2 high findings, or 5+ medium -> `HIGH`
 - 1-4 medium findings, no high or critical -> `MODERATE`
 - Only low findings -> `LOW`
-
-### Cleanup
-1. Shut down all teammates: send `shutdown_request` via `SendMessage` to each teammate
-2. Call `TeamDelete`
-3. Remove working directory:
-```bash
-rm -rf "${CRITIQUE_DIR}"
-# Remove .critiques/ if empty
-rmdir "${REPO_ROOT}/.critiques" 2>/dev/null || true
-```
----
-## State Management
-- Working directory: `${CRITIQUE_DIR}` (gitignored via `.critiques/`)
-- State tracked in `run.json`
-- Artifacts stored in `${CRITIQUE_DIR}/artifacts/`
-- Target code saved as `target-code.md`, file list as `target-files.txt`
-- No worktrees needed — critique is a read-only operation
 ---
 ## Error Handling
 ### Agent Failure
 1. Log agent/phase/error.
 2. If a researcher fails: continue with remaining researchers. If all fail, proceed without research briefing (attackers will explore context themselves).
 3. If an attacker fails: continue with remaining attackers. If fewer than half succeed, note reduced coverage in the final report.
-4. Do not retry failed agents.
+4. If a verifier fails: keep its finding unannotated, log `verification failed` for it, and continue. Verifier failures never drop findings.
+5. Do not retry failed agents.
 
 ### Target Not Found
 1. If file/directory does not exist: report "Target not found: <path>" and exit cleanly.
 2. If function not found in file: report "Function '<name>' not found in <file>" and exit cleanly.
 
 ### Description Resolution Failed
-1. If the description researcher finds no relevant code: report "Could not identify code matching: <description>" and exit cleanly.
-2. Clean up working directory.
-
-### Not a Git Repo
-1. Report error: "Critique requires a git repository."
-2. Exit without creating working directory.
+1. If the description researcher finds no relevant content: report "Could not identify content matching: <description>" and exit cleanly.
 
 ### Empty Target
-1. If the resolved target has no source files: report "No source files found in target."
-2. Clean up and exit.
+1. If the resolved target has no files: report "No files found in target."
+2. Exit.
 ---
 ## Important Notes
-- **Always use teammates, never background agents.** Spawn every agent using the Task tool with the `team_name` parameter.
 - **Orchestrator handles aggregation directly** — do not delegate Phase 5 to an agent.
-- **Model**: If `AGENT_MODEL` is set (not null), pass it as the `model` parameter on every Task tool spawn. If null, omit the parameter.
-- **User Instructions**: If `USER_INSTRUCTIONS` is set, prepend a `## User Instructions\n<USER_INSTRUCTIONS>` section in every agent's task prompt.
-- Valid agent names: `critique-researcher`, `critique-attacker`.
-- **This is read-only.** No worktrees, no stashing, no code modifications. Critique examines existing code — it does not change it.
+- **Model**: If `AGENT_MODEL` is set (not null), pass it as the `model` parameter on every Task spawn. If null, omit the parameter.
+- **User Instructions**: If `USER_INSTRUCTIONS` is set, include a `## Instructions\n<USER_INSTRUCTIONS>` section in every agent's task prompt (already shown in the templates).
+- Valid agent names: `critique-researcher`, `critique-attacker`, `critique-verifier`.
+- **This is read-only.** No worktrees, no stashing, no modifications. Critique examines targets — it does not change them.
+- **No file artifacts.** All state (target files, research briefing, findings) is held in-memory. No directories, no JSON state files, no markdown artifacts, no cleanup.
 - **No numeric scoring.** Findings with severity levels and a risk assessment are the output.
-- **Target code is the source of truth.** Every finding must trace to a specific location in the target files or a specific absence.
+- **Target content is the source of truth.** Every finding must trace to a specific location in the target files or a specific absence.
+- **Works without git.** A git repo is not required. If in a git repo, researchers and attackers may use read-only git history for context. If not, they skip git-based research.
 ---
 ## Phase Transitions
 Check preconditions before each phase; if unmet, run fallback.
 | Phase | Precondition | Fallback |
 |-------|-------------|----------|
 | Phase 2 | Valid target classified | Report error and STOP |
-| Phase 3 | target-files.txt exists and is non-empty; depth is standard or deep | Skip research entirely |
-| Phase 4 | target-files.txt exists and is non-empty | Abort with cleanup |
-| Phase 5 | At least 1 attacker produced output | Report "critique could not complete" and cleanup |
+| Phase 3 | TARGET_FILES is non-empty | Abort — nothing to critique |
+| Phase 4 | At least 1 attacker produced output; 1+ critical/high finding exists | Skip verification, go to Phase 5 |
+| Phase 5 | At least 1 attacker produced output | Report "critique could not complete" |
 ---
 ## The Iron Law
 ```
@@ -415,18 +395,21 @@ No exceptions.
 BEFORE advancing to any new phase:
 1. CHECK: Are the preconditions from the Phase Transitions table met?
 2. VERIFY: Did the previous phase actually produce its expected outputs?
-3. CONFIRM: Is run.json updated with results from the completed phase?
-4. FALLBACK: If preconditions aren't met, execute the documented fallback — don't improvise
-5. ONLY THEN: Enter the next phase
+3. FALLBACK: If preconditions aren't met, execute the documented fallback — don't improvise
+4. ONLY THEN: Enter the next phase
 Skipping precondition checks = building on an unverified foundation.
 ```
 ### Red Flags — STOP If You Notice
 - About to spawn attackers without verifying the target files exist
 - About to present results without at least 1 attacker having completed
-- Skipping Phase 3 research for standard/deep depth
+- Skipping Phase 2 research for standard/deep depth
 - Spawning researchers for quick depth
+- Presenting critical or high findings without having run (or explicitly capped/skipped) verification
+- About to drop a security-perspective finding on a false-positive verdict (clamp to uncertain instead)
 - Presenting a risk assessment without checking finding counts
+- Computing the risk assessment over findings that verification dropped
 - Using "should be fine" or "looks good" without evidence
-- Presenting generic praise in "What's Solid" without citing code lines
+- Presenting generic praise in "What's Solid" without citing specific content
 - Creating worktrees or modifying files (critique is read-only)
+- Writing files to disk (all state is in-memory)
 **All of these mean: STOP. Check the preconditions. Read the actual outputs. Follow the documented process.**

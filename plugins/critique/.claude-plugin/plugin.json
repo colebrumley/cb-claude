@@ -1,5 +1,5 @@
 {
   "name": "critique",
-  "description": "Adversarial code red-teaming — parallel attackers probe existing code for vulnerabilities, bugs, fragility, and design problems",
+  "description": "Adversarial red-teaming — parallel attackers probe any target (code, specs, plans) for vulnerabilities, bugs, fragility, and design problems, with critical/high findings independently verified",
   "author": { "name": "Cole" }
 }

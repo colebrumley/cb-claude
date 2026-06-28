@@ -73,6 +73,7 @@ function printIssues(label: string, issues: Issue[]) {
 const args = parseArgs(process.argv.slice(2));
 const cmd = args._[0];
 
+try {
 switch (cmd) {
   case "init": {
     const feature = args._[1];
@@ -219,4 +220,9 @@ Commands:
 Common flags: --dir <path> (default: cwd)`
     );
     if (cmd && cmd !== "help") process.exit(1);
+}
+} catch (e) {
+  // loadState and other helpers throw clean Errors; surface them as a tidy
+  // message + nonzero exit instead of an uncaught stack trace.
+  fail((e as Error).message);
 }

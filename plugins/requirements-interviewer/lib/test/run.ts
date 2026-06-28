@@ -7,10 +7,11 @@
  */
 
 import { strict as assert } from "node:assert";
-import { writeFileSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { newState, applyPatch } from "../src/state.js";
-import { validateRequirements } from "../src/validate-requirements.js";
+import { newState, applyPatch, saveState, loadState } from "../src/state.js";
+import { validateRequirements, validateSchema } from "../src/validate-requirements.js";
 import { analyzeGaps } from "../src/gaps.js";
 import { renderSpec } from "../src/render-spec.js";
 import { renderHandoff } from "../src/render-handoff.js";
@@ -144,6 +145,44 @@ if (handoff.ok) {
 const spec = renderSpec(state);
 check("spec includes the feature name", spec.includes("CSV export for reports"));
 check("spec includes confirmed decisions", spec.includes("dec-1"));
+
+// 10. Schema-completeness regressions (previously slipped past validateSchema).
+const hasSchemaField = (s: any) =>
+  validateRequirements(s).errors.some((e) => e.code === "schema.field");
+
+// 10a. An empty {} risk review must NOT satisfy the risk-review gate.
+const emptyReview = applyPatch(newState("x", "small"), { riskReviews: [{}] });
+check("empty {} riskReview is a schema error", hasSchemaField(emptyReview));
+
+// 10b. A requirement without a priority is rejected (was: NaN sort, (undefined) output).
+const noPriority = applyPatch(state, {
+  upsert: { functionalRequirements: [{ id: "fr-x", text: "no priority" } as any] },
+});
+check("requirement missing priority is a schema error",
+  validateRequirements(noPriority).errors.some((e) => e.code === "schema.enum" && e.path === "functionalRequirements[3].priority"));
+
+// 10c. A user journey without steps is rejected (was: render-spec crash).
+const noSteps = applyPatch(state, {
+  upsert: { userJourneys: [{ id: "uj-x", name: "no steps" } as any] },
+});
+check("userJourney missing steps is a schema error", hasSchemaField(noSteps));
+
+// 11. Persistence: atomic save/load round-trips, and loadState fails closed.
+const tmp = mkdtempSync(join(tmpdir(), "req-iv-"));
+try {
+  saveState(tmp, state);
+  const reloaded = loadState(tmp);
+  check("save/load round-trips decisions across both files", reloaded.decisions.length === state.decisions.length);
+  check("save/load round-trips goals", reloaded.goals.length === state.goals.length);
+
+  // Corrupt the requirements file — loadState must throw a clean error, not crash a renderer.
+  writeFileSync(join(tmp, "requirements.json"), "{ this is not valid json");
+  let threw = false;
+  try { loadState(tmp); } catch { threw = true; }
+  check("loadState rejects a corrupt requirements.json", threw);
+} finally {
+  rmSync(tmp, { recursive: true, force: true });
+}
 
 if (WRITE && handoff.ok) {
   writeFileSync(join(FIXTURES, "requirements.json"), JSON.stringify((({ decisions, ...r }) => r)(state), null, 2) + "\n");

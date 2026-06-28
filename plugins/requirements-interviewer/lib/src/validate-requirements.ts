@@ -116,6 +116,12 @@ const ENUMS = {
   assumptionStatus: ["proposed", "confirmed", "rejected", "accepted-risk"],
   testability: ["testable", "manual", "unclear"],
   priority: ["must", "should", "could"],
+  riskLikelihood: ["low", "medium", "high"],
+  riskImpact: ["low", "medium", "high"],
+  riskStatus: ["open", "mitigated", "accepted"],
+  constraintKind: ["technical", "business", "legal", "ux", "other"],
+  dependencyKind: ["internal", "external", "team", "service", "data", "other"],
+  dependencyStatus: ["available", "pending", "at-risk", "unknown"],
 };
 
 function checkEnum(
@@ -128,6 +134,16 @@ function checkEnum(
     issues.push(
       err("schema.enum", `Invalid value "${value}" (allowed: ${allowed.join(", ")})`, path)
     );
+}
+
+const isStr = (v: unknown): v is string => typeof v === "string";
+const isNonEmptyStr = (v: unknown): boolean => typeof v === "string" && v.trim().length > 0;
+const isStrArray = (v: unknown): boolean =>
+  Array.isArray(v) && v.every((x) => typeof x === "string");
+
+/** Push a schema.field error when a required field check fails. */
+function checkField(issues: Issue[], ok: boolean, path: string, msg: string) {
+  if (!ok) issues.push(err("schema.field", `${path}: ${msg}`, path));
 }
 
 export function validateSchema(state: any): Issue[] {
@@ -165,22 +181,77 @@ export function validateSchema(state: any): Issue[] {
     });
   }
 
+  // Per-collection required fields + enums. These mirror requirements.schema.json
+  // so malformed-but-id-bearing items are rejected at `apply` instead of
+  // crashing renderers or reaching the builder handoff.
+  for (const key of ["goals", "nonGoals", "outOfScope"]) {
+    (state[key] ?? []).forEach((g: any, i: number) =>
+      checkField(issues, isStr(g?.text), `${key}[${i}].text`, "must be a string")
+    );
+  }
+  (state.actors ?? []).forEach((a: any, i: number) =>
+    checkField(issues, isStr(a?.name), `actors[${i}].name`, "must be a string")
+  );
+  (state.userJourneys ?? []).forEach((j: any, i: number) => {
+    checkField(issues, isStr(j?.name), `userJourneys[${i}].name`, "must be a string");
+    checkField(issues, isStrArray(j?.steps), `userJourneys[${i}].steps`, "must be an array of strings");
+  });
+  for (const key of ["functionalRequirements", "nonFunctionalRequirements"]) {
+    (state[key] ?? []).forEach((r: any, i: number) => {
+      checkField(issues, isStr(r?.text), `${key}[${i}].text`, "must be a string");
+      checkEnum(issues, r?.priority, ENUMS.priority, `${key}[${i}].priority`);
+    });
+  }
+  (state.constraints ?? []).forEach((c: any, i: number) => {
+    checkField(issues, isStr(c?.text), `constraints[${i}].text`, "must be a string");
+    if (c?.kind !== undefined) checkEnum(issues, c.kind, ENUMS.constraintKind, `constraints[${i}].kind`);
+  });
+  (state.assumptions ?? []).forEach((a: any, i: number) => {
+    checkField(issues, isStr(a?.text), `assumptions[${i}].text`, "must be a string");
+    checkEnum(issues, a.status, ENUMS.assumptionStatus, `assumptions[${i}].status`);
+  });
+  (state.risks ?? []).forEach((r: any, i: number) => {
+    checkField(issues, isStr(r?.text), `risks[${i}].text`, "must be a string");
+    checkEnum(issues, r?.likelihood, ENUMS.riskLikelihood, `risks[${i}].likelihood`);
+    checkEnum(issues, r?.impact, ENUMS.riskImpact, `risks[${i}].impact`);
+    checkEnum(issues, r?.status, ENUMS.riskStatus, `risks[${i}].status`);
+  });
+  (state.openQuestions ?? []).forEach((q: any, i: number) => {
+    checkField(issues, isStr(q?.question), `openQuestions[${i}].question`, "must be a string");
+    checkField(issues, isStr(q?.category), `openQuestions[${i}].category`, "must be a string");
+    checkField(issues, isStr(q?.whyItMatters), `openQuestions[${i}].whyItMatters`, "must be a string");
+    checkEnum(issues, q.blocking, ENUMS.questionBlocking, `openQuestions[${i}].blocking`);
+    checkEnum(issues, q.status, ENUMS.questionStatus, `openQuestions[${i}].status`);
+  });
+  (state.acceptanceCriteria ?? []).forEach((c: any, i: number) => {
+    checkField(issues, isStr(c?.criterion), `acceptanceCriteria[${i}].criterion`, "must be a string");
+    checkEnum(issues, c.testability, ENUMS.testability, `acceptanceCriteria[${i}].testability`);
+    checkEnum(issues, c.priority, ENUMS.priority, `acceptanceCriteria[${i}].priority`);
+  });
+  (state.dependencies ?? []).forEach((d: any, i: number) => {
+    checkField(issues, isStr(d?.name), `dependencies[${i}].name`, "must be a string");
+    checkEnum(issues, d?.kind, ENUMS.dependencyKind, `dependencies[${i}].kind`);
+    checkEnum(issues, d?.status, ENUMS.dependencyStatus, `dependencies[${i}].status`);
+  });
   (state.decisions ?? []).forEach((d: any, i: number) => {
+    checkField(issues, isStr(d?.decision), `decisions[${i}].decision`, "must be a string");
+    checkField(issues, isStrArray(d?.alternatives), `decisions[${i}].alternatives`, "must be an array of strings");
+    checkField(issues, isStrArray(d?.relatedRequirements), `decisions[${i}].relatedRequirements`, "must be an array of strings");
     checkEnum(issues, d.status, ENUMS.decisionStatus, `decisions[${i}].status`);
     checkEnum(issues, d.source, ENUMS.decisionSource, `decisions[${i}].source`);
     checkEnum(issues, d.confidence, ENUMS.confidence, `decisions[${i}].confidence`);
   });
-  (state.openQuestions ?? []).forEach((q: any, i: number) => {
-    checkEnum(issues, q.blocking, ENUMS.questionBlocking, `openQuestions[${i}].blocking`);
-    checkEnum(issues, q.status, ENUMS.questionStatus, `openQuestions[${i}].status`);
-  });
-  (state.assumptions ?? []).forEach((a: any, i: number) => {
-    checkEnum(issues, a.status, ENUMS.assumptionStatus, `assumptions[${i}].status`);
-  });
-  (state.acceptanceCriteria ?? []).forEach((c: any, i: number) => {
-    checkEnum(issues, c.testability, ENUMS.testability, `acceptanceCriteria[${i}].testability`);
-    checkEnum(issues, c.priority, ENUMS.priority, `acceptanceCriteria[${i}].priority`);
-  });
+
+  // riskReviews has no id (not in `collections`); validate its shape here so an
+  // empty `{}` cannot satisfy the large/epic risk-review gate.
+  if (!Array.isArray(state.riskReviews)) {
+    issues.push(err("schema.array", "riskReviews must be an array", "riskReviews"));
+  } else {
+    state.riskReviews.forEach((r: any, i: number) => {
+      checkField(issues, isNonEmptyStr(r?.reviewer), `riskReviews[${i}].reviewer`, "must be a non-empty string");
+      checkField(issues, isNonEmptyStr(r?.summary), `riskReviews[${i}].summary`, "must be a non-empty string");
+    });
+  }
 
   for (const sec of ["rollout", "observability", "security", "operational"]) {
     const s = state[sec];

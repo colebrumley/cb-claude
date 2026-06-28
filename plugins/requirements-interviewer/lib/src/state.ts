@@ -9,7 +9,15 @@
  * The LLM proposes; this module validates the *shape* and persists.
  */
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  openSync,
+  fsyncSync,
+  closeSync,
+  renameSync,
+} from "node:fs";
 import { join } from "node:path";
 import {
   RequirementsState,
@@ -17,6 +25,7 @@ import {
   SCHEMA_VERSION,
   Tier,
 } from "./types.js";
+import { validateSchema } from "./validate-requirements.js";
 
 export const REQUIREMENTS_FILE = "requirements.json";
 export const DECISION_LOG_FILE = "decision-log.json";
@@ -224,23 +233,75 @@ export function stateExists(dir: string): boolean {
   return existsSync(p.requirements) && existsSync(p.decisionLog);
 }
 
+function parseJsonFile(path: string): any {
+  let text: string;
+  try {
+    text = readFileSync(path, "utf8");
+  } catch (e) {
+    throw new Error(`could not read ${path}: ${(e as Error).message}`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error(`${path} is corrupt or truncated (invalid JSON): ${(e as Error).message}`);
+  }
+}
+
+/**
+ * Load and merge the two state files. Fails closed: a corrupt, truncated,
+ * wrong-version, or structurally-invalid file throws a clean Error rather than
+ * letting a malformed shape reach the validators/renderers (where a missing
+ * array would otherwise crash with an opaque TypeError). Because `apply` only
+ * ever persists schema-valid state, structural failure here means the file was
+ * hand-edited or written by another version — the user must fix it.
+ */
 export function loadState(dir: string): RequirementsState {
   const p = statePaths(dir);
   if (!existsSync(p.requirements))
     throw new Error(`No ${REQUIREMENTS_FILE} in ${dir}. Run \`init\` first.`);
-  const reqRaw = JSON.parse(readFileSync(p.requirements, "utf8"));
-  const decisions = existsSync(p.decisionLog)
-    ? JSON.parse(readFileSync(p.decisionLog, "utf8")).decisions ?? []
-    : [];
-  return { ...reqRaw, decisions };
+  const reqRaw = parseJsonFile(p.requirements);
+  const decisionFile = existsSync(p.decisionLog) ? parseJsonFile(p.decisionLog) : {};
+  const decisions = decisionFile?.decisions ?? [];
+  const state = { ...reqRaw, decisions } as RequirementsState;
+
+  if (reqRaw?.schemaVersion !== undefined && reqRaw.schemaVersion !== SCHEMA_VERSION)
+    throw new Error(
+      `${REQUIREMENTS_FILE} has schemaVersion ${reqRaw.schemaVersion}, but this tool expects ${SCHEMA_VERSION}. Migrate or recreate the session.`
+    );
+
+  const schemaIssues = validateSchema(state);
+  if (schemaIssues.length)
+    throw new Error(
+      `state in ${dir} is structurally invalid:\n` +
+        schemaIssues.map((i) => `  - [${i.code}] ${i.message}`).join("\n")
+    );
+
+  return state;
 }
 
+/** Write `data` to `path` atomically: temp file -> fsync -> rename. */
+function atomicWrite(path: string, data: string): void {
+  const tmp = `${path}.tmp`;
+  const fd = openSync(tmp, "w");
+  try {
+    writeFileSync(fd, data);
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+  renameSync(tmp, path); // rename is atomic on POSIX
+}
+
+/**
+ * Persist state across both files atomically. Each file is staged to a temp
+ * path, fsynced, then renamed, so an interrupted write can never truncate the
+ * prior good state. (Cross-file atomicity is still best-effort: a crash between
+ * the two renames is detectable because `saveState` always writes the decision
+ * log after requirements — but renames are fast and the window is tiny.)
+ */
 export function saveState(dir: string, state: RequirementsState): void {
   const p = statePaths(dir);
   const { decisions, ...rest } = state;
-  writeFileSync(p.requirements, JSON.stringify(rest, null, 2) + "\n");
-  writeFileSync(
-    p.decisionLog,
-    JSON.stringify({ decisions }, null, 2) + "\n"
-  );
+  atomicWrite(p.requirements, JSON.stringify(rest, null, 2) + "\n");
+  atomicWrite(p.decisionLog, JSON.stringify({ decisions }, null, 2) + "\n");
 }

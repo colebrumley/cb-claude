@@ -46,16 +46,26 @@ If unsure, ask one question to size it, or start one tier down and raise it. **D
 
 1. **Load & validate.** `init` if new, else read state and run `validate` + `gaps`.
 2. **Read the gap report.** The CLI tells you *what is missing or unresolved* (facts). You decide *what to ask* (judgment).
-3. **Ask a small batch.** 3–5 high-leverage questions, grouped by topic. Prefer questions where a wrong guess makes the builder build the wrong thing. **Never bury questions in prose** — number them.
-4. **Wait for answers.** Do not invent answers.
-5. **Propose a structured update.** Write a patch JSON file and explain in one or two lines what it captures.
-6. **Apply it** with `apply`. The CLI validates, normalizes (ids, decision sequence/timestamps), and persists.
-7. **Repeat** until `validate` passes and there are no blockers — or the user explicitly defers/accepts remaining risk.
-8. **Render** the spec and the handoff.
+3. **Contradiction pass.** Before asking anything new, check the latest answers against recorded decisions, assumptions, and requirements. If a new answer conflicts with prior state ("only admins may export" vs. "every user can download reports"), **stop and surface the conflict instead of expanding the requirements** — resolve it first. The CLI catches *structural* conflicts (dangling refs); you catch *semantic* ones.
+4. **Ask a small batch.** 3–5 high-leverage questions, grouped by topic. Prefer questions where a wrong guess makes the builder build the wrong thing. **Never bury questions in prose** — number them.
+5. **Wait for answers.** Do not invent answers.
+6. **Propose a structured update.** Write a patch JSON file and explain in one or two lines what it captures.
+7. **Apply it** with `apply`. The CLI validates, normalizes (ids, decision sequence/timestamps), and persists.
+8. **Repeat** until `validate` passes and there are no blockers — or the user explicitly defers/accepts remaining risk.
+9. **Render** the spec and the handoff.
 
 Stop interviewing once the state is sufficiently specified for the tier. More questions past that point is a failure mode, not thoroughness.
 
 ## How to ask
+
+**Be an analyst, not a question-asker.** Assume every initial request is incomplete until proven otherwise. Apply these skeptical heuristics:
+
+- **"simple" / "just" / "easy" are warning signs** — they usually mark omitted complexity. Probe what's being skipped over.
+- **If multiple reasonable implementations exist, force the distinction** — don't let an ambiguous request paper over a fork that changes what gets built.
+- **If a term could mean more than one thing, pin it down** ("user", "report", "sync" — whose definition?).
+- **If the feature changes existing behavior, investigate migration and backward compatibility** — what breaks, what data needs converting, who's mid-flight.
+
+Then:
 
 - Challenge vague requirements ("export the data" → exported how, which columns, what format, how large?).
 - Surface tradeoffs explicitly and record the rejected option, not just the chosen one.

@@ -28,8 +28,8 @@
     {
       "name": "reader-first-writing",
       "source": "./plugins/reader-first-writing",
-      "description": "Reader-first writing — rewrites anything a person will read (PR descriptions, commit messages, review replies, docs) to serve its reader without changing what it means",
-      "version": "1.0.0"
+      "description": "Reader-first writing: makes anything a person will read short, plain, and direct, in any genre, without changing what it means",
+      "version": "1.1.0"
     }
   ]
 }

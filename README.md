@@ -59,6 +59,6 @@ Skill: `requirements-interviewer` | CLI: `plugins/requirements-interviewer/lib` 
 
 ### reader-first-writing
 
-Rewrites anything a person will read — PR descriptions, commit messages, review replies, status updates, specs — so it serves its reader, without changing what it means. Revises the whole document top-down (structure, then paragraphs, then words), strips self-referential process narration, and checks the result for meaning drift before returning it.
+Makes anything a person will read short, plain, and direct, without changing what it means. Applies to every genre, including the model's own chat replies. Starts from what the reader will do next, puts that in the first sentence, cuts what doesn't change it, then rebuilds dense sentences and strips the habits that mark text as machine-written: sycophantic openers, performative hedges, filler transitions, significance inflation, participial tails, negative parallelism, reflexive markdown. Keeps claim strength, conditions, owners, and numbers fixed while cutting. The rules are grounded in corpus studies of LLM prose, vendor style guidance, and the plain-language canon; `references/sources.md` maps each rule to its support.
 
-Skill: `reader-first-writing` (proactive) | References: `genre-contracts`, `semantic-preservation` (loaded on demand)
+Skill: `reader-first-writing` (proactive) | References: `revising`, `genre-contracts` (loaded on demand), `sources` (maintenance only)

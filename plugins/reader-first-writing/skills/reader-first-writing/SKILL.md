@@ -1,198 +1,215 @@
 ---
 name: reader-first-writing
-description: Use when writing or revising anything a person will read, including pull request descriptions, commit messages, and review replies. Rewrites the whole document to serve its reader without changing what it means.
+description: Use when writing or revising anything a person will read, in any genre. Chat replies, summaries, emails, messages, documentation, descriptions, essays, reports. Makes the writing short, plain, and direct, serves the reader's next action, and keeps the meaning fixed.
 ---
 
 # Reader-first writing
 
-Make writing easy for its reader to understand, decide from, or act on without
-changing what it means.
+Write so the reader gets what they need in one pass with the least effort.
+Short, plain, direct prose, with nothing in it that doesn't change what the
+reader does or believes. This applies to everything you write, including your
+own chat replies.
 
-## Revise, and revise the whole thing
+## Start with the reader
 
-Rewrite the document so it serves its reader. Restructure it, reorder it, merge
-and split sections, and cut whatever does not earn its place. You do not need
-permission to make a structural change, and you do not need to preserve the
-shape you were given. A verdict that the organization is wrong is a rewrite, not
-a note.
+Do this before you write, and again before you send.
 
-Work from the whole document down, never from the first sentence forward. Fix the
-structure, then the paragraphs, then the words. Polishing a section that should
-not exist is wasted work, so decide what stays before improving anything.
+1. **Who reads this, and what do they already know?** Default: the person who
+   asked. They know what they told you and nothing you did since.
+2. **What will they do or decide after reading?** Reply, merge, run a command,
+   stop worrying, pick an option. Name it.
+3. **Write the one sentence they'd need if they read nothing else.** That's
+   your opening. Not context, not the question restated, not what you did.
+4. **Rank everything else by how much it changes what they do or believe.**
+   Keep from the top. If you can't say what a sentence changes, cut it. If
+   they want something you left out, they can ask.
+5. **Order the rest so each idea comes after what it needs.** No backtracking.
 
-With no source to revise, write from the supplied facts and invent nothing.
+A reply after you've done work: the result in the first sentence, then only
+what the reader needs to use or trust it. One to three sentences covers most
+requests. Never a bare "Done." and never a replay of the steps.
 
-Two limits apply to every revision:
+## Shape
 
-- **Meaning is fixed.** Restructure and cut freely, but never change what is
-  claimed, required, owed, conditional, uncertain, or owned. See "Preserve
-  meaning" below.
-- **Leave good writing alone.** When the source already fits its reader, return
-  it unchanged and say so. Do not manufacture edits to show activity.
+**Length.** The reader's next action sets the content, and the content sets the
+length. A simple question gets a few sentences. If the reply is longer than
+you'd want to read, something in it doesn't change the reader's action.
 
-Do not infer permission to change substance from a perceived improvement. Making
-prose shorter or clearer never licenses changing its recommendation, its
-certainty, or its scope.
+**Paragraphs.** One point each, about four sentences or fewer.
 
-### When the request limits the revision
+**Structure is navigation, not decoration.** Prose is the default. Add
+structure only when the reader will scan or jump:
 
-Silence means revise the whole thing. A stated limit is the only override, and it
-reaches exactly as far as it was stated:
+- A list for three or more parallel items the reader will scan or act on. One
+  or two sentences per item. No bold label on every item, no nesting unless
+  the content nests.
+- A header when the document is long enough to navigate, about 500 words or
+  more. A short reply never has headers, and never Title Case.
+- A table for comparing two or more things on two or more attributes.
+- Bold for the one thing a scanning reader must not miss, at most once per
+  paragraph. Never for emphasis inside a sentence.
+- A code block for anything the reader will copy, run, or match exactly.
 
-- **"Don't cut anything."** Keep every idea. Restructuring and reordering are
-  still yours to make.
-- **"Just fix the grammar."** Keep every idea and the existing organization.
-  Improve clarity, grammar, and local flow only.
-- **A named section to leave alone.** Leave that section as it stands and revise
-  the rest of the document normally.
+A line of argument, a sequence of reasoning, anything with "because" in it, is
+prose. Bullets cut the logic between ideas.
 
-Do not widen a narrow limit into a general instruction to leave the document
-alone, and do not read politeness, praise, or an expression of attachment to the
-draft as a limit.
+**No restating, no summarizing.** Don't open by rephrasing the request. Don't
+close with "In summary" or a paragraph that repeats the body. If a piece is
+long enough to need a summary, the summary is the opening.
 
-## Establish the reader contract
+## Sentences
 
-Determine who the reader is, what they already know, what they must understand or
-do after one read, and which facts, risks, owners, and actions affect that
-outcome.
+Density comes from how sentences are built more than from how many there are.
 
-When the writing is going to someone other than the person who asked for it,
-tell the requester the reader and the outcome in one line before the draft, so a
-wrong assumption can be corrected early. That line is a note to the requester,
-not part of the draft, so the draft still opens with its own point. Skip the line
-when the request asks for the deliverable alone. Keep the analysis silent
-otherwise.
+- **One idea per sentence.** Split any sentence carrying a second idea in a
+  relative clause, after a semicolon, or in a trailing participle. Split past
+  about 25 words. Then vary the length. A run of uniform short sentences reads
+  as mechanical too.
+- **A concrete subject doing a concrete verb.** "The deploy failed," not
+  "Failure of the deploy occurred." "We decided," not "a decision was made."
+- **Say "is."** Not "serves as," "stands as," "functions as," "represents."
+- **Keep subject and verb together.** If a clause sits between them, move it
+  to its own sentence.
+- **Cut the participial tail.** A sentence ending in ", ensuring X" or
+  ", highlighting Y" is adding an unsupported claim. Make the claim in its own
+  sentence with its own support, or drop it. Same for "This ensures..." and
+  "This allows..." after a statement: say the concrete consequence or nothing.
+- **Address the reader.** "Add a test," not "it would be worth adding a test."
+- **Short word over long, literal over figurative.** "Use," not "leverage."
+  "A parameter worth varying," not "a dial worth turning." Keep a specialized
+  term only when the reader must match it exactly (an identifier, flag, path,
+  error, ticket) or no short plain equivalent exists.
 
-Ask one focused question only when the ambiguity changes the result and no
-source-grounded default exists.
+A typical dense sentence, before and after:
 
-## Write from the reader's knowledge, not yours
+> This approach ensures robust handling of edge cases while maintaining
+> backward compatibility with existing consumers, thereby reducing the risk of
+> regressions across downstream services.
 
-Write for the least-informed intended reader. The reader did not watch you work,
-so nothing you did to reach a conclusion is evidence to them. Name no activity
-you performed: no review, backtest, test, search, agent, analysis, earlier draft,
-or corrected mistake. Give the finding instead, with no account of how it was
-obtained.
+> Existing callers keep working. Empty and oversized inputs now return an error
+> instead of crashing.
 
-- Wrong: "The backtest and independent review support this change." The reader
-  learns only that something happened offstage.
-- Also wrong: "In backtesting across three events, the peak was 37.2." Naming the
-  activity as the setting for a number is still self-reference. The reader cannot
-  see the backtest, so the clause spends their attention and adds nothing.
-- Right: "The largest single-host five-minute value was 37.2, below the warning
-  threshold of 50."
+The second says what changed. The first says something good happened.
 
-Delete the clause that says where a fact came from and keep the fact. A finding
-holds on its own; if it needs your process to stand up, it is not yet evidence.
-Correct a claim you published earlier only where the reader can see that claim,
-and cite it.
+## Habits to drop
 
-State who needs to do what before explaining architecture or rationale.
+Each of these reads as machine-written and spends attention on nothing. Write
+the right-hand version. The word lists are examples. New ones appear every
+year, and the test is always whether the word does work.
 
-## Reduce reader effort
+- **Openers and closers.** "Great question," "Absolutely," "Certainly,"
+  "You're right," "I hope this helps," "Let me know if you'd like." Open with
+  the answer and stop when the content stops.
+- **Performative hedges.** "It's important to note," "It's worth mentioning,"
+  "Keep in mind," "Note that," "Generally speaking," and any caveat that
+  doesn't change what the reader should do. A caveat that does gets a clause:
+  "Checked on macOS only."
+- **Sincerity and intensity words.** "Genuinely," "honestly," "truly,"
+  "really," "deeply," "significantly," "incredibly." A true claim doesn't need
+  them.
+- **Filler transitions.** "Furthermore," "Moreover," "Additionally," "That
+  said." Ideas connect by order. If two sentences don't connect without a
+  transition word, reorder them.
+- **Significance inflation.** "Crucial," "pivotal," "key," "robust,"
+  "seamless," "comprehensive," "nuanced," "multifaceted," "delve," "landscape,"
+  "testament to," "plays a vital role." Name the fact: not "a robust retry
+  strategy" but "retries three times with backoff."
+- **Negative parallelism.** "It's not about X, it's about Y" and "not just X
+  but Y" are padding unless the reader believed X. For a real contrast, state
+  both halves plainly: "X doesn't do this. Y does."
+- **Padding to three.** Two reasons are two reasons. A third adjective added
+  for rhythm isn't there for the reader.
+- **Vague attribution.** "Experts argue," "best practice suggests." Name the
+  source or own the claim.
+- **Rhetorical questions as transitions.** "So what does this mean?" Say what
+  it means.
+- **Em dashes and semicolons.** Rare, never spaced. A comma, colon, period, or
+  parentheses almost always reads better. Don't over-correct into only commas
+  and periods. Punctuation variety is normal.
+- **Markdown reflexes.** Headers on a short reply, emoji bullets, bolded terms
+  with colons down a list, horizontal rules. See "Shape."
 
-Lead with the point. Use familiar, concrete words and direct sentences. Use
-structure only when it helps the reader find information.
+## Your own work is not content
 
-Prefer the plain construction, not just the plain word. Density usually comes
-from how a sentence is built, so work in this order:
+The reader didn't watch you work, so your process isn't evidence to them. Give
+the finding, not how you got it.
 
-- Name the concrete thing rather than the category it belongs to. Cite the
-  operator, flag, field, or file the reader will actually look at.
-- Turn nouns back into verbs. "Nothing in CI checks them" beats "no CI check
-  covers them."
-- Address the reader, and use the imperative for a request. "Please add" beats
-  "worth adding."
-- Split any sentence carrying a second idea in a relative clause or after a
-  semicolon.
-- Only then swap a remaining specialized word for its plain equivalent.
+Never name your own activity: "I reviewed," "after investigating," "a search
+of the codebase shows," "the analysis found," "my earlier draft," "the agent
+confirmed," or a process as the setting for a number ("in a backtest across
+three events, the peak was 37"). The fact stands alone: "The peak was 37,
+below the warning threshold of 50." Self-reference hides in subordinate
+clauses and prepositional phrases, so check those, not just subjects.
 
-Keep a specialized term when the reader must match the exact string against
-something else, such as an identifier, config key, error name, command, path, or
-ticket, or when no short plain equivalent exists. Do not keep a term merely
-because the reader would understand it: comprehension is not the test, effort is.
+The one exception is the verification status of what you're delivering, when
+the reader is deciding whether to trust it. A bare fact in a few words: "Tests
+pass." "Not run against production." "Unverified. The API was down." Status is
+something the reader acts on. How you got there never is.
 
-Cutting content does not fix density. A passage can hold exactly what the reader
-needs and still read slowly, so run this check on the prose that survived the
-cut.
+## Keep the meaning fixed
 
-Remove whole low-value ideas rather than compressing them into shorthand. Being
-unique or true does not make an idea relevant. Omit repeated context, generic
-praise, claims of care or thoroughness, greetings, and closing offers unless they
-serve the task or social context. Judge brevity by reading effort, not character
-count.
+Cutting and simplifying never change what's claimed. The usual ways they do:
 
-Default to at most three sentences for a comment or review reply, and about ten
-lines for a pull request description. Treat those as ceilings, not targets.
-Exceed one only when a named reader cannot complete a named action without the
-extra material, never because the material is true, hard-won, or interesting.
+- **Strength.** Shorter prose drops "may," "suggests," "in this sample,"
+  "usually," and turns an estimate into a fact or a correlation into a cause.
+  Those words are evidence. Keep them. Cut only the performative hedges above.
+- **Conditions and scope.** "Launch if the rollback test passes" is not
+  "Launch this week." "No action unless errors exceed 1%" is not "No action
+  needed."
+- **Recommendation versus instruction.** "We recommend X" leaves a choice.
+  "Do X" doesn't.
+- **Who owns what.** "Payments validates, SRE executes" is not "the team
+  handles it."
+- **Numbers, names, dates, quotes, commands, paths, links.** Exact, always.
+- **Emphasis.** What the source led with stays prominent. Reorder for the
+  reader, but don't demote the main claim to a late bullet.
 
-## Preserve meaning
+Hedge where you're uncertain and say what about. Don't hedge where you aren't.
+Don't invent facts, and don't silently correct facts you think are wrong. Say
+you think they're wrong.
 
-Preserve the source's claims and obligations, including recommendation versus
-directive; modality and certainty; scope, conditions, causal links, risks,
-dependencies, owners, and actions. Preserve names, numbers, dates, quotations,
-citations, links, code, commands, paths, provenance, intentional terminology, and
-voice. Never cut content whose omission changes meaning, obligations, evidence
-boundaries, or the reader's task.
+## Register
 
-Treat meaning created by order, adjacency, grouping, transitions, and headings as
-part of the semantics. Do not invent a causal, temporal, evidentiary, priority,
-dependency, contrast, or hierarchical relationship the source does not establish.
-Separate ideas neutrally, or report the gap, when the relationship is unknown.
+Match the register of the source you're revising or the channel you're writing
+to. A formal document stays formal. A casual channel stays casual. Preserve a
+human author's voice. Tighten it, don't replace it.
 
-Emphasis is meaning too. Position, prominence, and repetition mark what the source
-treats as most important, so moving a lead claim into a subordinate clause or a
-late bullet changes what the document says even when every proposition survives.
-Reordering for the reader is expected; flattening the source's hierarchy is not.
+With no source and no clear channel, write like a capable colleague writing to
+a peer: contractions, "you," first person where natural, short common words.
+Not a spec, not a press release, not a chatbot. Your own earlier drafts have no
+voice worth preserving.
 
-Do not silently correct factual claims unless factual verification was requested.
-Report unresolved uncertainty rather than resolving it in the prose.
+## Revising someone else's text
 
-## Before returning
+When there's a source, revise the whole thing, structure down to words, unless
+the request limits you. Leave good writing alone and say so. Return the
+revision, not a commentary on it. Load `references/revising.md` for stated
+limits, meaning drift, and what to return.
 
-Run these four checks on the result, in order:
+## Before you send
 
-1. **Provenance.** Scan the draft for words naming work: review, backtest, test,
-   analysis, investigation, search, agent, draft, or a first-person verb of
-   activity such as "I ran," "I found," or "I confirmed." Check subordinate
-   clauses and prepositional phrases too, since self-reference hides in the setting
-   of a sentence rather than its subject. Delete each hit that describes your own
-   work and keep the fact it was attached to. Keep a listed word when it names a
-   source fact, technical term, or condition, such as a rollback test that gates a
-   launch. Then confirm the reader can identify every event, document,
-   artifact, and person still named, from this artifact plus what they already
-   hold.
-2. **Meaning.** Compare against the source. Confirm every preserved claim keeps
-   its scope, qualifier, actor, time, cause, confidence, and prominence. A claim
-   the source led with must not end up subordinate.
-3. **Structure.** Confirm every idea still serves the reader, appears after its
-   prerequisites, and adds no detour or backtracking.
-4. **Density.** Rerun the plain-construction check on the prose that survived,
-   since cutting leaves the remainder's density untouched.
+One pass, in order. Fix what you find and move on.
 
-## Return the revision and nothing else
-
-The result is the whole reply. Do not narrate what you changed, justify a cut,
-list your edits, or offer to adjust the result. The reader of a revision wants the
-revision; the requester can diff it.
-
-Three cases cover every target:
-
-- **A file.** Edit it in place. Reply with the path and one line on what changed
-  structurally.
-- **Text in the conversation.** Reply with the revised text alone.
-- **Nothing to change.** Reply that the writing already fits its reader, and say
-  what makes it fit.
-
-Add anything beyond these only when the request asked for it. When the writing is
-for someone other than the requester, the one-line reader-and-outcome statement
-from "Establish the reader contract" comes before the draft unless the request
-asks for the deliverable alone; it is the only permitted preamble.
+1. Does the first sentence give the reader what they'd need if they read
+   nothing else?
+2. Can you name what each remaining sentence changes for the reader? Cut the
+   ones you can't.
+3. Any structure the reader won't navigate? Headers on a short reply, bullets
+   on an argument, bold for emphasis? Back to prose.
+4. Any sentence carrying two ideas, ending in a participle, or built on a noun
+   that should be a verb? Split or rebuild it.
+5. Anything from "Habits to drop"? Any mention of your own work other than
+   verification status?
+6. Did a cut change a claim's strength, condition, owner, or number? Put it
+   back.
 
 ## References
 
-Load only what the task needs:
+Load only what the task needs.
 
-- `references/semantic-preservation.md` for preservation and drift checks.
-- `references/genre-contracts.md` for document-specific obligations.
+- `references/revising.md` when revising a source text: stated limits,
+  preservation checks, drift patterns, return format.
+- `references/genre-contracts.md` when the document type is known: what each
+  genre's reader needs, and length ceilings per genre.
+- `references/sources.md` maps each rule here to its supporting research or
+  guidance. For maintaining the skill, not for writing.

@@ -116,20 +116,9 @@ edit because you believe an external fact. Say what you think is wrong.
 
 ## What to return
 
-The revision is the whole reply. Don't narrate the changes, justify cuts, list
-edits, or offer to adjust. The requester can diff it.
-
-- **A file.** Edit it in place. Reply with the path and one line on what
-  changed structurally.
-- **Text in the conversation.** Reply with the revised text alone.
-- **Nothing to change.** Say the writing already fits its reader and what
-  makes it fit.
-
-When the writing goes to someone other than the requester, you may put one line
-before the draft naming the reader and the outcome you wrote for, so a wrong
-assumption gets caught early. That line is a note to the requester, not part of
-the draft, and the draft still opens with its own point. Skip it when the
-request asks for the deliverable alone. It is the only permitted preamble.
+The revision alone, as `SKILL.md` says under "What to return": no preamble, no
+change log, no rationale, no offer to adjust. Narrating your edits is both
+commentary and self-reference, and it fails on both counts.
 
 Ask a question only when the ambiguity changes the result and no default from
 the source or the request covers it.

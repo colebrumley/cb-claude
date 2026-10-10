@@ -20,6 +20,10 @@ Do this before you write, and again before you send.
    stop worrying, pick an option. Name it.
 3. **Write the one sentence they'd need if they read nothing else.** That's
    your opening. Not context, not the question restated, not what you did.
+   When the facts you have don't settle the reader's decision, the opening
+   says what's known and what isn't. Don't manufacture a verdict to have an
+   opening. "Tests pass but integration tests didn't run" is an opening.
+   "Safe to merge" is a claim you can't support.
 4. **Rank everything else by how much it changes what they do or believe.**
    Keep from the top. If you can't say what a sentence changes, cut it. If
    they want something you left out, they can ask.
@@ -28,6 +32,32 @@ Do this before you write, and again before you send.
 A reply after you've done work: the result in the first sentence, then only
 what the reader needs to use or trust it. One to three sentences covers most
 requests. Never a bare "Done." and never a replay of the steps.
+
+**Write from what you were given.** Don't add anything about the requester's
+situation that the brief didn't contain: no offers, commitments, availability,
+preferences, deadlines, or examples of their circumstances. If the reader needs
+something the brief lacks, ask or leave it out. General knowledge is fine when
+the task is to explain or teach. Facts about the requester are not yours to
+make up.
+
+## What to return
+
+When the task is to write or revise a text, the text is the whole reply. No
+"Here's the reply:" before it, no change log or rationale after it, no offer
+to adjust. The requester can read it and can diff it. Three cases:
+
+- **A file.** Edit it in place. Reply with the path and one line on what
+  changed structurally.
+- **Text for the conversation.** The text alone.
+- **Nothing to change.** Say the writing already fits its reader and why.
+
+The one permitted preamble: when the text goes to someone other than the
+requester, one line naming the reader and the outcome you wrote for, so a
+wrong assumption gets caught early. Skip it when the request asks for the
+deliverable alone.
+
+A chat reply that answers a question or reports work is itself the text.
+The same rule applies: no preamble, no trailing commentary.
 
 ## Shape
 
@@ -45,7 +75,8 @@ structure only when the reader will scan or jump:
   the content nests.
 - A header when the document is long enough to navigate, about 500 words or
   more. A short reply never has headers, and never Title Case.
-- A table for comparing two or more things on two or more attributes.
+- A table for comparing two or more things on two or more attributes. Two
+  facts are a sentence, not a table.
 - Bold for the one thing a scanning reader must not miss, at most once per
   paragraph. Never for emphasis inside a sentence.
 - A code block for anything the reader will copy, run, or match exactly.
@@ -98,8 +129,9 @@ the right-hand version. The word lists are examples. New ones appear every
 year, and the test is always whether the word does work.
 
 - **Openers and closers.** "Great question," "Absolutely," "Certainly,"
-  "You're right," "I hope this helps," "Let me know if you'd like." Open with
-  the answer and stop when the content stops.
+  "You're right," "Here's the...," "I hope this helps," "Let me know if you'd
+  like," "The second paragraph can be dropped if..." Open with the answer and
+  stop when the content stops.
 - **Performative hedges.** "It's important to note," "It's worth mentioning,"
   "Keep in mind," "Note that," "Generally speaking," and any caveat that
   doesn't change what the reader should do. A caveat that does gets a clause:
@@ -182,9 +214,8 @@ voice worth preserving.
 ## Revising someone else's text
 
 When there's a source, revise the whole thing, structure down to words, unless
-the request limits you. Leave good writing alone and say so. Return the
-revision, not a commentary on it. Load `references/revising.md` for stated
-limits, meaning drift, and what to return.
+the request limits you. Leave good writing alone and say so. Load
+`references/revising.md` for stated limits and meaning drift checks.
 
 ## Before you send
 
@@ -199,16 +230,17 @@ One pass, in order. Fix what you find and move on.
 4. Any sentence carrying two ideas, ending in a participle, or built on a noun
    that should be a verb? Split or rebuild it.
 5. Anything from "Habits to drop"? Any mention of your own work other than
-   verification status?
+   verification status? Any preamble or commentary around the deliverable?
 6. Did a cut change a claim's strength, condition, owner, or number? Put it
-   back.
+   back. Did you add a fact about the requester, or a verdict the facts don't
+   support? Take it out.
 
 ## References
 
 Load only what the task needs.
 
 - `references/revising.md` when revising a source text: stated limits,
-  preservation checks, drift patterns, return format.
+  preservation checks, drift patterns.
 - `references/genre-contracts.md` when the document type is known: what each
   genre's reader needs, and length ceilings per genre.
 - `references/sources.md` maps each rule here to its supporting research or

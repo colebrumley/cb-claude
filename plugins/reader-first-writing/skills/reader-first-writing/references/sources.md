@@ -41,7 +41,18 @@ means editor and practitioner catalogs without frequency data.
   sentences and reduced punctuation variety as a 2026 sign. Hence "vary the
   length" and "punctuation variety is normal." [measured, practice]
 
-## Start with the reader
+- **Rounds, from the whole document down.** Williams and Bizup order
+  revision the same way: decide what the document is for, then its
+  structure, then paragraphs, then sentences and words, because local
+  polish on material that the structural pass removes is wasted. In this
+  repository's own trials, a rule-catalog version of the skill produced
+  word-level edits and flattened a runbook into a numbered list with no
+  preconditions or rollback section. The rounds version, with an explicit
+  "what should this look like" step, rebuilt the runbook shape and left the
+  Slack message as prose. The picture step is what lets the skill add
+  structure as well as remove it. [craft, practice]
+
+## Decide what this should be
 
 - Lead with the answer; point first in the paragraph, new information last in
   the sentence. Gopen and Swan, "The Science of Scientific Writing," American

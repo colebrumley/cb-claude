@@ -6,14 +6,10 @@ when the words started as someone else's.
 
 ## Revise the whole thing
 
-Silence means revise everything: structure, order, sections, paragraphs, words.
-You don't need permission to restructure, and you don't need to keep the shape
-you were given. If the organization is wrong, fix it. Don't leave a note saying
-it's wrong.
-
-Work top down. Decide what stays before improving anything, because polishing a
-section that should not exist is wasted work. Then structure, then paragraphs,
-then words.
+Silence means revise everything, in the rounds `SKILL.md` lays out: picture,
+document, paragraphs, sentences, words. You don't need permission to
+restructure, and you don't need to keep the shape you were given. If the
+organization is wrong, fix it. Don't leave a note saying it's wrong.
 
 A perceived improvement never licenses a change of substance. Shorter and
 clearer never means a different recommendation, a different level of certainty,

@@ -13,7 +13,7 @@ Add the marketplace, then install individual plugins:
 Install all plugins:
 
 ```
-/plugin install critique anti-sycophancy
+/plugin install critique anti-sycophancy requirements-interviewer reader-first-writing
 ```
 
 Or install only what you need:
@@ -56,3 +56,9 @@ A deterministic-first requirements interview before you build. A skeptical analy
 ```
 
 Skill: `requirements-interviewer` | CLI: `plugins/requirements-interviewer/lib` (`init`, `validate`, `gaps`, `apply`, `render-spec`, `render-handoff`)
+
+### reader-first-writing
+
+Rewrites anything a person will read — PR descriptions, commit messages, review replies, status updates, specs — so it serves its reader, without changing what it means. Revises the whole document top-down (structure, then paragraphs, then words), strips self-referential process narration, and checks the result for meaning drift before returning it.
+
+Skill: `reader-first-writing` (proactive) | References: `genre-contracts`, `semantic-preservation` (loaded on demand)

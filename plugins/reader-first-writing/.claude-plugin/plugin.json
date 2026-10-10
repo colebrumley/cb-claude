@@ -1,0 +1,5 @@
+{
+  "name": "reader-first-writing",
+  "description": "Reader-first writing — rewrites anything a person will read (PR descriptions, commit messages, review replies, docs) to serve its reader without changing what it means",
+  "author": { "name": "Cole" }
+}

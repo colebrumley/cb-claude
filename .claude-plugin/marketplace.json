@@ -24,6 +24,12 @@
       "source": "./plugins/requirements-interviewer",
       "description": "Deterministic-first requirements interviewer — a skeptical analyst clarifies a feature before implementation, while a dependency-free TypeScript CLI validates, persists, and renders the requirements package handed to builder agents",
       "version": "1.0.0"
+    },
+    {
+      "name": "reader-first-writing",
+      "source": "./plugins/reader-first-writing",
+      "description": "Reader-first writing — rewrites anything a person will read (PR descriptions, commit messages, review replies, docs) to serve its reader without changing what it means",
+      "version": "1.0.0"
     }
   ]
 }

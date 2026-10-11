@@ -13,7 +13,7 @@ Add the marketplace, then install individual plugins:
 Install all plugins:
 
 ```
-/plugin install critique anti-sycophancy
+/plugin install critique anti-sycophancy requirements-interviewer reader-first-writing
 ```
 
 Or install only what you need:
@@ -56,3 +56,9 @@ A deterministic-first requirements interview before you build. A skeptical analy
 ```
 
 Skill: `requirements-interviewer` | CLI: `plugins/requirements-interviewer/lib` (`init`, `validate`, `gaps`, `apply`, `render-spec`, `render-handoff`)
+
+### reader-first-writing
+
+Makes anything a person will read short, plain, and direct, without changing what it means. Applies to every genre, including the model's own chat replies. Works in rounds from the whole document down: first a picture of what this kind of document should look like for its reader, then the document (lead, what stays, order, shape in both directions), then paragraphs, then sentences, then words. Strips the habits that mark text as machine-written and keeps claim strength, conditions, owners, and numbers fixed while cutting. The rules are grounded in corpus studies of LLM prose, vendor style guidance, and the plain-language canon; `references/sources.md` maps each rule to its support.
+
+Skill: `reader-first-writing` (proactive) | References: `revising`, `genre-contracts` (loaded on demand), `sources` (maintenance only)

@@ -14,6 +14,12 @@
       "version": "1.0.1"
     },
     {
+      "name": "critique-lite",
+      "source": "./plugins/critique-lite",
+      "description": "Single-pass critique — reviews code, specs, and plans for vulnerabilities, bugs, fragility, and design problems in one pass with no subagents, reporting findings by severity",
+      "version": "0.1.0"
+    },
+    {
       "name": "anti-sycophancy",
       "source": "./plugins/anti-sycophancy",
       "description": "Install the Critical Feedback Protocol into CLAUDE.md with enforcement hook",

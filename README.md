@@ -36,6 +36,16 @@ Adversarial red-teaming — parallel attackers probe any target (code, specs, pl
 
 Agents: `critique-researcher`, `critique-attacker`, `critique-verifier` | Skill: `critiquing-code` (proactive)
 
+### critique-lite
+
+Experimental. The same review as `critique` in one pass: no subagents, no verification stage, same report format. It exists because early measurements showed the full pipeline taking much longer without clearly better findings. Not fully tested yet.
+
+```
+/critique-lite <target>
+```
+
+Skill: `critique-lite`
+
 ### anti-sycophancy
 
 Installs the Critical Feedback Protocol into CLAUDE.md with an enforcement hook. Makes Claude push back, challenge assumptions, and give honest critical feedback.

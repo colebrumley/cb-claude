@@ -1,0 +1,5 @@
+{
+  "name": "critique-lite",
+  "description": "Single-pass critique — reviews code, specs, and plans for vulnerabilities, bugs, fragility, and design problems in one pass with no subagents, reporting findings by severity",
+  "author": { "name": "Cole" }
+}

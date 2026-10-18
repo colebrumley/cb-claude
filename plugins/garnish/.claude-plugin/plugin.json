@@ -1,0 +1,7 @@
+{
+  "name": "garnish",
+  "description": "Puts a little whimsy back into dry, LLM-flattened projects: finds or proposes a project conceit, then suggests a few harmless places to have fun with it",
+  "author": {
+    "name": "Cole"
+  }
+}

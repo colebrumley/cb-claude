@@ -1,6 +1,8 @@
 {
   "name": "cb-claude",
-  "owner": { "name": "Cole" },
+  "owner": {
+    "name": "Cole"
+  },
   "metadata": {
     "description": "Claude Code plugins by Cole",
     "version": "1.0.1",
@@ -30,6 +32,12 @@
       "source": "./plugins/reader-first-writing",
       "description": "Reader-first writing: makes anything a person will read short, plain, and direct, in any genre, without changing what it means",
       "version": "1.1.0"
+    },
+    {
+      "name": "garnish",
+      "source": "./plugins/garnish",
+      "description": "Puts a little whimsy back into dry, LLM-flattened projects: finds or proposes a project conceit, then suggests a few harmless places to have fun with it",
+      "version": "0.1.0"
     }
   ]
 }

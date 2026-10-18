@@ -13,7 +13,7 @@ Add the marketplace, then install individual plugins:
 Install all plugins:
 
 ```
-/plugin install critique anti-sycophancy requirements-interviewer reader-first-writing
+/plugin install critique anti-sycophancy requirements-interviewer reader-first-writing garnish
 ```
 
 Or install only what you need:
@@ -62,3 +62,14 @@ Skill: `requirements-interviewer` | CLI: `plugins/requirements-interviewer/lib` 
 Makes anything a person will read short, plain, and direct, without changing what it means. Applies to every genre, including the model's own chat replies. Works in rounds from the whole document down: first a picture of what this kind of document should look like for its reader, then the document (lead, what stays, order, shape in both directions), then paragraphs, then sentences, then words. Strips the habits that mark text as machine-written and keeps claim strength, conditions, owners, and numbers fixed while cutting. The rules are grounded in corpus studies of LLM prose, vendor style guidance, and the plain-language canon; `references/sources.md` maps each rule to its support.
 
 Skill: `reader-first-writing` (proactive) | References: `revising`, `genre-contracts` (loaded on demand), `sources` (maintenance only)
+
+### garnish
+
+Puts a little whimsy back into projects that LLM-flattened writing has made dry. It's an LLM trying to be funny, so it sucks and does it badly. That's why it only suggests. Finds the project's conceit (or proposes two or three that fit what the project does), then suggests a few harmless spots to have fun with it: names, help text, empty states, changelog headers. Nothing changes until you pick. Accepted and rejected ideas go into a `LORE.md` at the repo root so the in-jokes stay consistent across sessions.
+
+```
+/garnish
+/garnish README.md
+```
+
+Skill: `garnish` (on request only)

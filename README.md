@@ -65,7 +65,7 @@ Skill: `reader-first-writing` (proactive) | References: `revising`, `genre-contr
 
 ### garnish
 
-Puts a little whimsy back into projects that LLM-flattened writing has made dry. Finds the project's conceit (or proposes two or three that fit what the project does), then suggests a few harmless spots to have fun with it: names, help text, empty states, changelog headers. It suggests only; nothing changes until you pick. Accepted and rejected ideas go into a `LORE.md` at the repo root so the in-jokes stay consistent across sessions.
+Puts a little whimsy back into projects that LLM-flattened writing has made dry. It's an LLM trying to be funny, so it sucks and does it badly. That's why it only suggests. Finds the project's conceit (or proposes two or three that fit what the project does), then suggests a few harmless spots to have fun with it: names, help text, empty states, changelog headers. It suggests only; nothing changes until you pick. Accepted and rejected ideas go into a `LORE.md` at the repo root so the in-jokes stay consistent across sessions.
 
 ```
 /garnish

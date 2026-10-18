@@ -65,10 +65,59 @@ Heightening doesn't have to mean bigger. Understatement often lands better
 than a flourish: a deadpan "encore" for an optional step beats "🎉 ENCORE
 TIME! 🎉".
 
-The test for every suggestion: **would a teammate grin, or groan?** A grin
-comes from finding the rule ("of course the docs are liner notes"). A groan
-comes from effort with no rule behind it ("the deploy is
-*deploy-lightful*").
+The test for every suggestion: **would a teammate grin, or wince?** A grin
+comes from finding the rule ("of course the docs are liner notes"). A good
+pun earns a groan, and that groan is part of the fun. A wince comes from
+effort with no rule behind it ("the deploy is *deploy-lightful*").
+
+### Wordplay
+
+Sound-based wordplay is a favorite here. Reach for it. It still has to
+resolve: the reader hears the twist and then sees why it fits.
+
+- **Puns on real double meanings.** The best puns work in both senses at
+  once, and the best of those use the project's own vocabulary. "Jams" is a
+  set of music tracks and also the thing a stuck job does. "Track" means a
+  song and also following progress. A pun that only works in one sense is
+  just a misspelling.
+- **Sound-alike puns.** Swap a word for one that sounds close and still
+  makes sense in context. The closer the sound, the better it lands. If you
+  have to bend the pronunciation to hear it, cut it.
+- **Spoonerisms.** Swap the first sounds of a two-word phrase. They land
+  when both new words are real and the result is funny on its own: "cache
+  miss" becomes "mash kiss," "bit flip" becomes "fit blip." Say the swap out
+  loud before suggesting it. Many spoonerisms come out crude; check that
+  yours doesn't, and drop it if it does. Use them as names, codenames, easter
+  eggs, or a one-line aside, never where the original term has to be
+  searched for.
+- **Backronyms and recursive acronyms.** Jams is "Job AI Management System."
+  The expansion should be both plausible and a little smug about it.
+
+Skip the famous ones. "Cache me if you can" and "there's no place like
+127.0.0.1" were funny the first thousand times. A pun the reader has seen
+before reads as borrowed, not made.
+
+### Voice
+
+Sometimes the fun is in who seems to be talking, not in the words. Write a
+line in a voice that doesn't match its job:
+
+- **Mock grandeur.** Epic language for something mundane. "Config
+  validated. The prophecy holds." for `-validate` passing.
+- **Bureaucratic deadpan.** Formal, procedural language for something
+  trivial. "Your request to do nothing has been received and processed."
+  for a no-op run.
+- **Understatement.** Flat calm for something big. "Rotated 400
+  certificates. Nobody noticed, which was the point."
+- **A tool with a personality.** Weary, proud, or quietly smug, used the
+  same way everywhere so it reads as a character. One voice per project;
+  record it in `LORE.md`.
+
+Irony is aimed at the tool or the situation, never at the reader. Text has
+no tone of voice, so sarcasm toward the user ("Wow, great config.") reads
+as contempt. Keep voice to good spots: success messages, no-ops, `--help`,
+taglines. An ironic voice in an error tells a stuck person their problem is
+funny.
 
 ## Step 1: find the lore
 
@@ -174,10 +223,15 @@ hundredth time.
 - **Outsiders still get the information.** An inside joke is fine, but
   someone who doesn't get it should read past it without losing anything.
   This matters most in anything public or shared with other teams.
-- **Prefer extending the conceit over a standalone pun.** A standalone bit is
-  fine when it's specific to the project and good. Say it's standalone. The
-  hacker naming tradition (GNU's Not Unix, EINE Is Not Emacs) works because
-  the joke comes out of what the thing is, not because it's a pun.
+- **Wordplay works best inside the conceit.** A pun on the conceit's
+  vocabulary lands twice. A standalone pun or spoonerism is fine when it's
+  specific to the project and good; say it's standalone. The hacker naming
+  tradition (GNU's Not Unix, EINE Is Not Emacs) works because the joke comes
+  out of what the thing is.
+- **Mix the forms.** Across two or three suggestions, vary the technique:
+  a conceit extension, a piece of sound-based wordplay, a line in an
+  unexpected voice. Use whichever have a good candidate. Don't force one
+  that isn't there.
 
 ## What to return
 
@@ -211,6 +265,9 @@ to do more, no list of other ideas.
 
 ## Conceit
 Jams is a record collection. Workflows are playlists, skills are tracks.
+
+## Voice
+A weary roadie who has seen every tour.
 
 ## Vocabulary
 | Project term | Lore term | Where it appears |

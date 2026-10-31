@@ -1,0 +1,8 @@
+{
+  "name": "build-loop",
+  "version": "0.1.0",
+  "description": "A plan-build-land loop for many parallel sessions on one repository: /plan writes a spec of work items, /build dispatches one worker per ready item into its own worktree, a shared board and check queue keep them out of each other's way, and /retro tunes the process",
+  "author": {
+    "name": "Cole"
+  }
+}

@@ -13,7 +13,7 @@ Add the marketplace, then install individual plugins:
 Install all plugins:
 
 ```
-/plugin install critique anti-sycophancy requirements-interviewer reader-first-writing garnish
+/plugin install critique anti-sycophancy build-loop reader-first-writing garnish
 ```
 
 Or install only what you need:
@@ -46,16 +46,19 @@ Installs the Critical Feedback Protocol into CLAUDE.md with an enforcement hook.
 /anti-sycophancy remove
 ```
 
-### requirements-interviewer
+### build-loop
 
-A deterministic-first requirements interview before you build. A skeptical analyst (the LLM) clarifies a vague feature into structured state; a dependency-free TypeScript CLI validates completeness, persists the decision log, and renders a builder handoff that downstream agents can't lose or reinterpret after compaction.
+A plan-build-land loop for many Claude Code sessions working on one repository at once. `/build-loop:plan` turns a bug, problem or feature into a spec of small work items, asking the owner only the forks that change what gets built. `/build-loop:build` dispatches one worker subagent per ready item, each in its own worktree and pull request, following a fixed worker protocol: build, verify, self-review, land. A board in the shared git directory carries claims and notes between sessions, a check queue meters how many test at once, hooks keep code changes out of the main checkout, and `/build-loop:retro` reads what the owner still had to type and changes the process so they need not. Opt in per repository with `/build-loop:setup`; the hooks do nothing elsewhere.
 
 ```
-/requirements Add CSV export to the reports page
-/requirements Multi-region failover --tier epic
+/build-loop:setup
+/build-loop:plan Add CSV export to the reports page
+/build-loop:build docs/specs/csv-export.md
+build-loop board          # who is doing what
+build-loop check unit     # one stage of the gate, queued
 ```
 
-Skill: `requirements-interviewer` | CLI: `plugins/requirements-interviewer/lib` (`init`, `validate`, `gaps`, `apply`, `render-spec`, `render-handoff`)
+Skills: `setup`, `plan`, `build`, `bughunt`, `retro` | CLI: `build-loop` (`board`, `check`, `queue`, `land`, `tidy`, `review`, `retro`, `docs`, `words`, `judge`) | Hooks: board on session start, worktree and word-list guard on Bash, protected paths on edits
 
 ### reader-first-writing
 

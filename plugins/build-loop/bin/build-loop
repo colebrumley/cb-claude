@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+// The one command the loop's skills, workers and owner run. The plugin puts bin/ on the Bash
+// tool's PATH, so it is called bare:
+//   build-loop board [claim <id> "what" | release <id> | note "words" | log [n]]
+//   build-loop check [stage]          the project's gate, queued; stages docs and words are built in
+//   build-loop queue [status | slots <n> | run -- <command...>]
+//   build-loop land [--dry-run]       fast-forward the base branch to this worktree's (no remote)
+//   build-loop tidy [--dry-run]       remove merged worktrees, branches and lapsed claims
+//   build-loop review [--base <ref>] [--full]
+//   build-loop retro [--all | --mark]
+//   build-loop docs                   the backlog's and the specs' shape
+//   build-loop words                  this branch against the word list
+//   build-loop judge <log>            a test log in the [test]/[tests] done format
+import { spawnSync } from 'node:child_process';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const lib = join(dirname(fileURLToPath(import.meta.url)), '..', 'lib');
+const scripts = { board: 'board.mjs', check: 'check.mjs', queue: 'queue.mjs', land: 'land.mjs', tidy: 'tidy.mjs', review: 'review.mjs', retro: 'retro.mjs', docs: 'docs-check.mjs', words: 'guard.mjs', judge: 'judge.mjs' };
+const [command, ...rest] = process.argv.slice(2);
+if (!command || !scripts[command]) {
+  console.error(`build-loop: ${command ? `unknown command ${command}` : 'say what to run'}; one of ${Object.keys(scripts).join(', ')}`);
+  process.exit(2);
+}
+const args = command === 'words' ? ['--check', ...rest] : rest;
+const run = spawnSync(process.execPath, [join(lib, scripts[command]), ...args], { stdio: 'inherit' });
+process.exit(run.status ?? 1);

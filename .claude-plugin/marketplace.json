@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Claude Code plugins by Cole",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -22,12 +22,6 @@
       "version": "1.0.1"
     },
     {
-      "name": "requirements-interviewer",
-      "source": "./plugins/requirements-interviewer",
-      "description": "Deterministic-first requirements interviewer — a skeptical analyst clarifies a feature before implementation, while a dependency-free TypeScript CLI validates, persists, and renders the requirements package handed to builder agents",
-      "version": "1.0.0"
-    },
-    {
       "name": "reader-first-writing",
       "source": "./plugins/reader-first-writing",
       "description": "Reader-first writing: makes anything a person will read short, plain, and direct, in any genre, without changing what it means",
@@ -37,6 +31,12 @@
       "name": "garnish",
       "source": "./plugins/garnish",
       "description": "Puts a little whimsy back into dry, LLM-flattened projects: finds or proposes a project conceit, then suggests a few harmless places to have fun with it",
+      "version": "0.1.0"
+    },
+    {
+      "name": "build-loop",
+      "source": "./plugins/build-loop",
+      "description": "A plan-build-land loop for many parallel sessions on one repository: specs of work items, one worker per item in its own worktree, a shared board and check queue, and a retro that tunes the process",
       "version": "0.1.0"
     }
   ]

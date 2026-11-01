@@ -58,7 +58,7 @@ Set `TARGET_TYPE` to `code` or `spec`. For mixed directories, use whichever domi
 
 1. **Depth** (header: "Depth"): "How thorough should the critique be?"
    - "Standard (Recommended)" — 1 researcher, 5 attackers
-   - "Quick" — no researcher, 3 attackers
+   - "Quick" — no researcher, 1 attacker covering 3 perspectives
    - "Deep" — 2 researchers, 7 attackers (code) / 5 attackers (spec), all perspectives
 
 **Ask only if model was NOT set from arguments:**
@@ -85,7 +85,7 @@ Set `TARGET_TYPE` to `code` or `spec`. For mixed directories, use whichever domi
 - `FUNCTION_NAME`: extracted function name (function mode only) or `null`
 - `DEPTH`: `quick|standard|deep`
 - `RESEARCHER_COUNT`: quick=0, standard=1, deep=2
-- `ATTACKER_COUNT`: see the perspective tables below
+- `ATTACKER_COUNT`: quick=1 (one attacker covers every quick perspective); standard and deep = one per perspective in the tables below
 - `AGENT_MODEL`: `opus|sonnet|haiku|null`. Set to the chosen model string, or `null` if "Inherited" / no flag.
 - `USER_INSTRUCTIONS`: free-text string or `null`.
 
@@ -109,6 +109,8 @@ Set `TARGET_TYPE` to `code` or `spec`. For mixed directories, use whichever domi
 | verifiability | Y | Y | Y |
 | context-efficiency | - | Y | Y |
 | anti-hallucination | - | Y | Y |
+
+At quick depth, all three perspectives go to a single attacker in one pass, not three parallel attackers. Standard and deep spawn one attacker per perspective.
 
 Only five spec perspectives exist, so spec attacker count tops out at 5. Deep depth on a spec target therefore adds the second researcher (dependencies focus) rather than additional attackers.
 
@@ -211,7 +213,27 @@ Files: <count> (<total line count> lines)
 Use the perspective table matching `TARGET_TYPE` and `DEPTH` from Phase 1.
 
 ### Launch Attackers
-Spawn all attackers in parallel using the Task tool with `Agent: critique-attacker` (multiple Task calls in one message):
+**Quick** — spawn exactly ONE attacker using the Task tool with `Agent: critique-attacker`, and give it every quick perspective:
+
+```
+Task: "You are a critique attacker attacking from these perspectives: <PERSPECTIVE_1>, <PERSPECTIVE_2>, <PERSPECTIVE_3>.
+## Target Files
+Read the target at these paths:
+<list of file paths from TARGET_FILES>
+## Target Type
+<code|spec>
+## Research Briefing
+No research briefing available — explore context yourself
+## Your Perspectives
+<PERSPECTIVE_1>, <PERSPECTIVE_2>, <PERSPECTIVE_3>
+## Instructions
+<USER_INSTRUCTIONS or 'None'>
+
+Read every target file in full. Attack from each perspective in turn, using all of its attack vectors. Quote specific content for every finding and tag each finding with the perspective that raised it. Check for what's NOT there — missing sections, missing handling, missing constraints. You MUST produce at least 2 findings per perspective."
+```
+If `AGENT_MODEL` is set, pass it as `model`.
+
+**Standard and deep** — spawn one attacker per perspective, all in parallel, using the Task tool with `Agent: critique-attacker` (multiple Task calls in one message):
 
 ```
 Task: "You are a critique attacker attacking from the <PERSPECTIVE> perspective.
@@ -239,7 +261,7 @@ Critical and high findings drive the risk assessment, so each one gets an indepe
 ### Collect & Deduplicate (preliminary)
 1. Collect all findings from all attackers.
 2. Deduplicate: merge findings that reference the same location with the same issue.
-3. Note cross-perspective consensus: issues raised by 2+ attackers are stronger signals — mark these with the raising perspectives.
+3. Note cross-perspective consensus: issues raised by 2+ attackers are stronger signals — mark these with the raising perspectives. At quick depth there is one attacker, so there is no consensus to note; take each finding's perspective from its tag.
 4. Group by severity: critical, high, medium, low.
 
 ### Dispatch Verifiers
@@ -335,6 +357,7 @@ Use this exact format:
 ### Attacker Consensus
 - **Agreed**: <issues raised by 2+ attackers — these are high-confidence findings>
 - **Split opinions**: <issues where attackers disagreed, if any>
+[At quick depth: "n/a — single attacker."]
 
 ### Risk Assessment: <CRITICAL | HIGH | MODERATE | LOW>
 <1-2 sentence rationale based on finding counts and severity>
@@ -404,6 +427,7 @@ Skipping precondition checks = building on an unverified foundation.
 - About to present results without at least 1 attacker having completed
 - Skipping Phase 2 research for standard/deep depth
 - Spawning researchers for quick depth
+- Spawning more than one attacker for quick depth
 - Presenting critical or high findings without having run (or explicitly capped/skipped) verification
 - About to drop a security-perspective finding on a false-positive verdict (clamp to uncertain instead)
 - Presenting a risk assessment without checking finding counts
